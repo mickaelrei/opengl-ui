@@ -59,23 +59,11 @@ void Quad::setPosition(const glm::vec2 &pos) {
     Quad::pos = pos;
 }
 
-void Quad::setBorderTL(const glm::vec2 &border) {
-    borderTL = border;
+void Quad::setBorderRadius(const BorderRadius &borderRadius) {
+    Quad::borderRadius = borderRadius;
 }
 
-void Quad::setBorderTR(const glm::vec2 &border) {
-    borderTR = border;
-}
-
-void Quad::setBorderBL(const glm::vec2 &border) {
-    borderBL = border;
-}
-
-void Quad::setBorderBR(const glm::vec2 &border) {
-    borderBR = border;
-}
-
-void Quad::draw(const Shader &shader) {
+void Quad::draw(const Shader &shader, const glm::vec2 &windowSize) {
     shader.use();
 
     // Set model matrix
@@ -89,10 +77,14 @@ void Quad::draw(const Shader &shader) {
     shader.setVec2("pos", pos);
     shader.setVec2("size", size);
 
-    shader.setVec2("borderTL", borderTL);
-    shader.setVec2("borderTR", borderTR);
-    shader.setVec2("borderBL", borderBL);
-    shader.setVec2("borderBR", borderBR);
+    // Get border radius in [0-1] scale
+    glm::vec2 quadPixelsSize = windowSize * size;
+    BorderRadius scaled = borderRadius.toScale(quadPixelsSize);
+
+    shader.setVec2("borderTL", scaled.topLeft().toVector2());
+    shader.setVec2("borderTR", scaled.topRight().toVector2());
+    shader.setVec2("borderBL", scaled.bottomLeft().toVector2());
+    shader.setVec2("borderBR", scaled.bottomRight().toVector2());
 
     // Draw elements
     glBindVertexArray(VAO);

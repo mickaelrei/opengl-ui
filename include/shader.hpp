@@ -10,41 +10,57 @@
 #include <sstream>
 #include <iostream>
 
-class Shader
-{
+/// @brief Wrapper class for an OpenGL shader
+class Shader {
 public:
-    // the program id
+    /// @brief OpenGL identifier
     unsigned int id;
 
-    // Constructor
+    /// @brief Constructor with file paths
+    /// @param vertexPath path to vertex shader
+    /// @param fragmentPath path to fragment shader
     Shader(const std::string &vertexPath, const std::string &fragmentPath);
 
-    // Use/activate shader
+    /// @brief Use/activate shader
     void use() const;
 
-    // Destroy shader
+    /// @brief Destroy shader
     void destroy() const;
 
-    // Set uniform bool in shader
+    /// @brief Set uniform bool
+    /// @param name uniform name
+    /// @param value bool
     void setBool(const std::string &name, bool value) const;
 
-    // Set uniform int in shader
+    /// @brief Set uniform integer
+    /// @param name uniform name
+    /// @param value integer
     void setInt(const std::string &name, int value) const;
 
-    // Set uniform float in shader
+    /// @brief Set uniform float
+    /// @param name uniform name
+    /// @param value float
     void setFloat(const std::string &name, float value) const;
 
-    // Set uniform vec2 in shader
-    void setVec2(const std::string &name, const glm::vec2 &v) const;
+    /// @brief Set uniform vec2
+    /// @param name uniform name
+    /// @param value vec2
+    void setVec2(const std::string &name, const glm::vec2 &value) const;
 
-    // Set uniform vec3 in shader
-    void setVec3(const std::string &name, const glm::vec3 &v) const;
+    /// @brief Set uniform vec3
+    /// @param name uniform name
+    /// @param value vec3
+    void setVec3(const std::string &name, const glm::vec3 &value) const;
 
-    // Set uniform vec4 in shader
-    void setVec4(const std::string &name, const glm::vec4 &v) const;
+    /// @brief Set uniform vec4
+    /// @param name uniform name
+    /// @param value vec4
+    void setVec4(const std::string &name, const glm::vec4 &value) const;
 
-    // Set uniform mat4 in shader
-    void setMat4(const std::string &name, const glm::mat4 &mat) const;
+    /// @brief Set uniform mat4
+    /// @param name uniform name
+    /// @param value mat4
+    void setMat4(const std::string &name, const glm::mat4 &value) const;
 };
 
 #endif // SHADER_H

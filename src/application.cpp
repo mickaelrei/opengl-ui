@@ -100,10 +100,12 @@ void Application::start()
         // glm::vec2 rbl{     mx * rx, ry - my * ry};
         // glm::vec2 rbr{rx - mx * rx, ry - my * ry};
 
-        quad.setBorderTL(rtl);
-        quad.setBorderTR(rtr);
-        quad.setBorderBL(rbl);
-        quad.setBorderBR(rbr);
+        quad.setBorderRadius(BorderRadius::circular(mx));
+
+        // quad.setBorderTL(rtl);
+        // quad.setBorderTR(rtr);
+        // quad.setBorderBL(rbl);
+        // quad.setBorderBR(rbr);
 
         // Update aspect ratio
         float aspectRatio = (float)width() / (float)height();
@@ -123,7 +125,8 @@ void Application::start()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw quad
-        quad.draw(quadShader);
+        glm::vec2 windowSize{width(), height()};
+        quad.draw(quadShader, windowSize);
 
         // Swap buffers and poll events
         // ----------------------------

@@ -1,39 +1,60 @@
 #pragma once
 
 #include "include/shader.hpp"
+#include "include/border_radius.hpp"
 
+/// @brief Class to represent a rectangular UI element
 class Quad {
 public:
+    /// @brief Default constructor
     Quad();
 
+    /// @brief Constructor with parameters
+    /// @param pos position
+    /// @param size size
+    /// @param color color
     Quad(
         const glm::vec2 &pos,
         const glm::vec2 &size,
         const glm::vec4 &color = glm::vec4{1.0f}
     );
 
+    /// @brief Set new size
+    /// @param size size vector
     void setSize(const glm::vec2 &size);
+
+    /// @brief Set new position
+    /// @param pos position vector
     void setPosition(const glm::vec2 &pos);
 
-    void setBorderTL(const glm::vec2 &border);
-    void setBorderTR(const glm::vec2 &border);
-    void setBorderBL(const glm::vec2 &border);
-    void setBorderBR(const glm::vec2 &border);
+    /// @brief Set new border radius
+    /// @param borderRadius border radius
+    void setBorderRadius(const BorderRadius &borderRadius);
 
-    void draw(const Shader &shader);
+    /// @brief Draws the quad
+    /// @param shader shader to use
+    /// @param windowSize window size in pixels
+    void draw(const Shader &shader, const glm::vec2 &windowSize);
+
 private:
+    /// @brief Position
     glm::vec2 pos;
 
+    /// @brief Size
     glm::vec2 size;
 
+    /// @brief Color
     glm::vec4 color;
 
-    glm::vec2 borderTL;
-    glm::vec2 borderTR;
-    glm::vec2 borderBL;
-    glm::vec2 borderBR;
+    /// @brief Border radius
+    BorderRadius borderRadius;
 
+    /// @brief OpenGL vertex array
     unsigned int VAO;
+
+    /// @brief OpenGL vertex buffer
     unsigned int VBO;
+
+    /// @brief OpenGL element buffer
     unsigned int EBO;
 };

@@ -4,8 +4,8 @@
 
 #include <string>
 
-class Application
-{
+/// @brief Class to handle an application
+class Application {
 public:
     Application();
 
