@@ -35,11 +35,11 @@ Radius Radius::zero() {
     return Radius{0, 0, false};
 }
 
-int Radius::x() const {
+float Radius::x() const {
     return _x;
 }
 
-int Radius::y() const {
+float Radius::y() const {
     return _y;
 }
 

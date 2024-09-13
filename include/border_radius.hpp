@@ -32,12 +32,12 @@ public:
     static Radius zero();
 
     /// @brief Gets the horizontal radius
-    /// @return horizontal radius in pixels
-    int x() const;
+    /// @return horizontal radius in current scale
+    float x() const;
 
     /// @brief Gets the vertical radius
-    /// @return vertical radius in pixels
-    int y() const;
+    /// @return vertical radius in current scale
+    float y() const;
 
     /// @brief Converts to a 2D vector
     /// @return 2D vector correspondent of the radii

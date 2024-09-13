@@ -79,11 +79,12 @@ void Quad::draw(const Shader &shader, const glm::vec2 &windowSize) {
 
     // Get border radius in [0-1] scale
     glm::vec2 quadPixelsSize = windowSize * size;
+    quadPixelsSize.y *= windowSize.x / windowSize.y;    // correct aspect ratio
     BorderRadius scaled = borderRadius.toScale(quadPixelsSize);
 
-    shader.setVec2("borderTL", scaled.topLeft().toVector2());
-    shader.setVec2("borderTR", scaled.topRight().toVector2());
-    shader.setVec2("borderBL", scaled.bottomLeft().toVector2());
+    shader.setVec2("borderTL", scaled.topLeft().    toVector2());
+    shader.setVec2("borderTR", scaled.topRight().   toVector2());
+    shader.setVec2("borderBL", scaled.bottomLeft(). toVector2());
     shader.setVec2("borderBR", scaled.bottomRight().toVector2());
 
     // Draw elements
