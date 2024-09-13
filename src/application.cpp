@@ -86,26 +86,22 @@ void Application::start()
         // -----
         processInput();
 
-        double mx, my;
-        glfwGetCursorPos(window, &mx, &my);
+        // double mx, my;
+        // glfwGetCursorPos(window, &mx, &my);
 
-        glm::vec2 invSize{1.0f / width(), 1.0f / height()};
-        glm::vec2 rtl{       mx * invSize.x,        my * invSize.y};
-        glm::vec2 rtr{1.0f - mx * invSize.x,        my * invSize.y};
-        glm::vec2 rbl{       mx * invSize.x, 1.0f - my * invSize.y};
-        glm::vec2 rbr{1.0f - mx * invSize.x, 1.0f - my * invSize.y};
+        // auto rtl = Radius::ellipticalPixels(          mx,            my);
+        // auto rtr = Radius::ellipticalPixels(width() - mx,            my);
+        // auto rbl = Radius::ellipticalPixels(          mx, height() - my);
+        // auto rbr = Radius::ellipticalPixels(width() - mx, height() - my);
 
+        // quad.setBorderRadius(BorderRadius(rbr, rbl, rtr, rtl));
 
-        // glm::vec2 rtr{rx - mx * rx,      my * ry};
-        // glm::vec2 rbl{     mx * rx, ry - my * ry};
-        // glm::vec2 rbr{rx - mx * rx, ry - my * ry};
-
-        quad.setBorderRadius(BorderRadius::circular(mx));
-
-        // quad.setBorderTL(rtl);
-        // quad.setBorderTR(rtr);
-        // quad.setBorderBL(rbl);
-        // quad.setBorderBR(rbr);
+        quad.setBorderRadius(BorderRadius(
+            Radius::ellipticalPixels(300, 150),
+            Radius::ellipticalScale(0.25f, 0.5f),
+            Radius::circularScale(1.0f),
+            Radius::circularPixels(25)
+        ));
 
         // Update aspect ratio
         float aspectRatio = (float)width() / (float)height();

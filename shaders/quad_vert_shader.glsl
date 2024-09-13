@@ -18,5 +18,5 @@ void main() {
 	gl_Position = vert;
 
 	// Send 2d point to fragment shader
-	fragPos = vert.xy;
+	fragPos = p.xy;
 }
