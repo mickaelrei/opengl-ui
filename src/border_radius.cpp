@@ -8,7 +8,7 @@ Radius::Radius(
     bool isPixels
 ) : _x{x}, _y{y}, _isPixels{isPixels} {}
 
-Radius Radius::ellipticalPixels(int x, int y) {
+Radius Radius::ellipticalPixel(int x, int y) {
     int _x = std::max(0, x);
     int _y = std::max(0, y);
     return Radius{static_cast<float>(_x), static_cast<float>(_y), true};
@@ -20,7 +20,7 @@ Radius Radius::ellipticalScale(float x, float y) {
     return Radius{_x, _y, false};
 }
 
-Radius Radius::circularPixels(int r) {
+Radius Radius::circularPixel(int r) {
     float _r = static_cast<float>(r);
     _r = std::max(_r, 0.0f);
     return Radius{_r, _r, true};
@@ -56,7 +56,12 @@ Radius Radius::toScale(const glm::vec2 &viewportSize) const {
 Radius Radius::toPixels(const glm::vec2 &viewportSize) const {
     if (_isPixels) return *this;
 
-    return Radius::ellipticalPixels(_x * viewportSize.x, _y * viewportSize.y);
+    return Radius::ellipticalPixel(_x * viewportSize.x, _y * viewportSize.y);
+}
+
+std::ostream &operator<< (std::ostream &os, const Radius &r) {
+    os << "(<" << r._x << ", " << r._y << ">, isScale=" << (!r._isPixels ? "true" : "false") << ")";
+    return os;
 }
 
 BorderRadius::BorderRadius(
@@ -70,8 +75,12 @@ BorderRadius BorderRadius::all(Radius radius) {
     return BorderRadius(radius, radius, radius, radius);
 }
 
-BorderRadius BorderRadius::circular(int radius) {
-    return BorderRadius::all(Radius::circularPixels(radius));
+BorderRadius BorderRadius::circularPixel(int radius) {
+    return BorderRadius::all(Radius::circularPixel(radius));
+}
+
+BorderRadius BorderRadius::circularScale(float radius) {
+    return BorderRadius::all(Radius::circularScale(radius));
 }
 
 BorderRadius BorderRadius::horizontal(Radius left, Radius right) {
@@ -80,6 +89,10 @@ BorderRadius BorderRadius::horizontal(Radius left, Radius right) {
 
 BorderRadius BorderRadius::vertical(Radius top, Radius bottom) {
     return BorderRadius(top, top, bottom, bottom);
+}
+
+BorderRadius BorderRadius::zero() {
+    return BorderRadius::all(Radius::zero());
 }
 
 Radius BorderRadius::topLeft() const {
@@ -114,4 +127,10 @@ BorderRadius BorderRadius::toPixels(const glm::vec2 &viewportSize) const {
         _bottomLeft.toPixels(viewportSize),
         _bottomRight.toPixels(viewportSize)
     );
+}
+
+std::ostream &operator<< (std::ostream &os, const BorderRadius &br) {
+    os << "(TL="     << br._topLeft    << ", TR="    << br._topRight
+       << ", BL="    << br._bottomLeft << ", BR="    << br._bottomRight << ")";
+    return os;
 }

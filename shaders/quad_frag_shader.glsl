@@ -70,27 +70,15 @@ void main() {
 	bool checkTR = false;
 	bool checkBL = false;
 	bool checkBR = false;
-	vec2 invTL2;
-	vec2 invTR2;
-	vec2 invBL2;
-	vec2 invBR2;
 
-    if (cborderTL.x * cborderTL.y > 0) {
+    if (cborderTL.x * cborderTL.y > 0)
         checkTL = true;
-        invTL2 = 1.0f / pow(cborderTL, vec2(2.0f));
-	}
-    if (cborderTR.x * cborderTR.y > 0) {
+    if (cborderTR.x * cborderTR.y > 0)
         checkTR = true;
-		invTR2 = 1.0f / pow(cborderTR, vec2(2.0f));
-	}
-    if (cborderBL.x * cborderBL.y > 0) {
+    if (cborderBL.x * cborderBL.y > 0)
         checkBL = true;
-		invBL2 = 1.0f / pow(cborderBL, vec2(2.0f));
-	}
-    if (cborderBR.x * cborderBR.y > 0) {
+    if (cborderBR.x * cborderBR.y > 0)
         checkBR = true;
-		invBR2 = 1.0f / pow(cborderBR, vec2(2.0f));
-	}
 
 	// Variables for corner check
 	bool isCorner = false;
@@ -98,6 +86,7 @@ void main() {
 	float cy;
 	float invRadiusX2;
 	float invRadiusY2;
+	float r;
 
 	// Bottom left
 	if (checkBL && corrected.x < cborderBL.x && corrected.y < cborderBL.y) {
@@ -106,6 +95,10 @@ void main() {
 		invRadiusY2 = 1.0f / (cborderBL.y * cborderBL.y);
 		cx = cborderBL.x - corrected.x;
 		cy = cborderBL.y - corrected.y;
+
+		float test = cx * cx * invRadiusX2 + cy * cy * invRadiusY2;
+		if (test > 1.0f) discard;
+		else r = test;
 	}
 
 	// Bottom right
@@ -115,6 +108,10 @@ void main() {
 		invRadiusY2 = 1.0f / (cborderBR.y * cborderBR.y);
 		cx = cborderBR.x + corrected.x - 1.0f;
 		cy = cborderBR.y - corrected.y;
+
+		float test = cx * cx * invRadiusX2 + cy * cy * invRadiusY2;
+		if (test > 1.0f) discard;
+		else r = test;
 	}
 
 	// Top left
@@ -124,6 +121,10 @@ void main() {
 		invRadiusY2 = 1.0f / (cborderTL.y * cborderTL.y);
 		cx = cborderTL.x - corrected.x;
 		cy = cborderTL.y + corrected.y - 1.0f;
+
+		float test = cx * cx * invRadiusX2 + cy * cy * invRadiusY2;
+		if (test > 1.0f) discard;
+		else r = test;
 	}
 
 	// Top right
@@ -133,9 +134,17 @@ void main() {
 		invRadiusY2 = 1.0f / (cborderTR.y * cborderTR.y);
 		cx = cborderTR.x + corrected.x - 1.0f;
 		cy = cborderTR.y + corrected.y - 1.0f;
+
+		float test = cx * cx * invRadiusX2 + cy * cy * invRadiusY2;
+		if (test > 1.0f) discard;
+		else r = test;
 	}
 
-	if (isCorner && (cx * cx * invRadiusX2 + cy * cy * invRadiusY2) > 1.0f) discard;
-
-	fragColor = vec4(corrected.x, corrected.y, 0.0f, 1.0f);
+	float alpha = 1.0f;
+	// if (isCorner) {
+	// 	float mSize = max(size.x, size.y);
+	// 	alpha = smoothstep(1.0f, 1.0f - 0.03f, r - 0.0f);
+	// }
+	fragColor = vec4(corrected.x, corrected.y, 0.0f, alpha);
+	// fragColor = vec4(alpha, 0.0f, 0.0f, 1.0f);
 }

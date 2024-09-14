@@ -86,22 +86,34 @@ void Application::start()
         // -----
         processInput();
 
-        // double mx, my;
-        // glfwGetCursorPos(window, &mx, &my);
+        double mx, my;
+        glfwGetCursorPos(window, &mx, &my);
 
-        // auto rtl = Radius::ellipticalPixels(          mx,            my);
-        // auto rtr = Radius::ellipticalPixels(width() - mx,            my);
-        // auto rbl = Radius::ellipticalPixels(          mx, height() - my);
-        // auto rbr = Radius::ellipticalPixels(width() - mx, height() - my);
-
-        // quad.setBorderRadius(BorderRadius(rbr, rbl, rtr, rtl));
+        auto rtl = Radius::ellipticalPixel(          mx,            my);
+        auto rtr = Radius::ellipticalPixel(width() - mx,            my);
+        auto rbl = Radius::ellipticalPixel(          mx, height() - my);
+        auto rbr = Radius::ellipticalPixel(width() - mx, height() - my);
 
         quad.setBorderRadius(BorderRadius(
-            Radius::ellipticalPixels(300, 150),
-            Radius::ellipticalScale(0.25f, 0.5f),
-            Radius::circularScale(1.0f),
-            Radius::circularPixels(25)
+            // Radius::circularScale(1.0f),
+            // Radius::zero(),
+            // Radius::zero(),
+            // Radius::circularScale(1.0f)
+
+            rbr,
+            rbl,
+            rtr,
+            rtl
+
+            // rbr,
+            // Radius::zero(),
+            // Radius::zero(),
+            // rtl
         ));
+        // quad.setBorderRadius(BorderRadius::circularScale(mx / width()));
+        // std::cout << "Quad border radius: " << quad.borderRadius() << "\n";
+
+        // quad.setRotation(now);
 
         // Update aspect ratio
         float aspectRatio = (float)width() / (float)height();

@@ -1,15 +1,17 @@
 #pragma once
 
+#include <ostream>
+
 #include <glm/glm.hpp>
 
 /// @brief Class used to build instances of BorderRadius
 class Radius {
 public:
-    /// @brief Constructor for elliptical radius in pixels scale
+    /// @brief Constructor for elliptical radius in pixel scale
     /// @param x radius on horizontal axis in pixels
     /// @param y radius on vertical axis in pixels
-    /// @return elliptical radius in pixels scale
-    static Radius ellipticalPixels(int x, int y);
+    /// @return elliptical radius in pixel scale
+    static Radius ellipticalPixel(int x, int y);
 
     /// @brief Constructor for elliptical radius in [0-1] scale
     /// @param x radius on horizontal axis in [0-1]
@@ -17,10 +19,10 @@ public:
     /// @return elliptical radius in [0-1] scale
     static Radius ellipticalScale(float x, float y);
 
-    /// @brief Constructor for circular radius in pixels scale
+    /// @brief Constructor for circular radius in pixel scale
     /// @param r radius in pixels
-    /// @return circular radius in pixels scale
-    static Radius circularPixels(int r);
+    /// @return circular radius in pixel scale
+    static Radius circularPixel(int r);
 
     /// @brief Constructor for circular radius in [0-1] scale
     /// @param r radius in [0-1]
@@ -50,8 +52,14 @@ public:
 
     /// @brief Returns this radius measured from scale to pixels
     /// @param viewportSize viewport render size vector in pixels
-    /// @return radius converted to pixels scale
+    /// @return radius converted to pixel scale
     Radius toPixels(const glm::vec2 &viewportSize) const;
+
+    /// @brief Output operator
+    /// @param os stream to send output to
+    /// @param r radius to output
+    /// @return stream with outputted radius
+    friend std::ostream &operator<< (std::ostream &os, const Radius &r);
 
 private:
     Radius(float x, float y, bool isPixels);
@@ -81,17 +89,20 @@ public:
         Radius bottomRight = Radius::zero()
     );
 
-    // TODO: Add pixels/scale constructors for each of these
-
     /// @brief Creates a border radius with same radii on all 4 corners
     /// @param radius radius
     /// @return border radius with equal corners
     static BorderRadius all(Radius radius);
 
-    /// @brief Creates a circular border radius
+    /// @brief Creates a circular border radius in pixel scale
     /// @param radius radius in pixels
     /// @return border radius with all 4 corners circularly rounded
-    static BorderRadius circular(int radius);
+    static BorderRadius circularPixel(int radius);
+
+    /// @brief Creates a circular border radius in [0-1] scale
+    /// @param radius radius in [0-1] scale
+    /// @return border radius with all 4 corners circularly rounded
+    static BorderRadius circularScale(float radius);
 
     /// @brief Creates a horizontally symmetric border radius
     /// @param left radius on both left corners
@@ -110,6 +121,10 @@ public:
         Radius top = Radius::zero(),
         Radius bottom = Radius::zero()
     );
+
+    /// @brief Empty border radius
+    /// @return border radius with no rounding
+    static BorderRadius zero();
 
     /// @brief Gets the top left radius
     /// @return top left radius
@@ -136,6 +151,12 @@ public:
     /// @param viewportSize viewport render size vector in pixels
     /// @return border radius converted to pixels scale
     BorderRadius toPixels(const glm::vec2 &viewportSize) const;
+
+    /// @brief Output operator
+    /// @param os stream to send output to
+    /// @param br border radius to output
+    /// @return stream with outputted border radius
+    friend std::ostream &operator<< (std::ostream &os, const BorderRadius &br);
 
 private:
     /// @brief Radius on top left corner
