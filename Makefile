@@ -1,4 +1,4 @@
-CFLAGS := -lglfw -lGL -lstdc++ -Wall -Wextra -fsanitize=address,undefined
+CFLAGS := -lglfw -lGL -lstdc++ -Wall -Wextra #-fsanitize=address,undefined
 
 INCLUDE := ./include
 SRC := ./src

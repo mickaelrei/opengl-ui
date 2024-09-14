@@ -101,10 +101,89 @@ void Quad::draw(const Shader &shader, const glm::vec2 &windowSize) {
     quadPixelsSize.y *= windowSize.x / windowSize.y;    // correct aspect ratio
     BorderRadius scaled = _borderRadius.toScale(quadPixelsSize);
 
-    shader.setVec2("borderTL", scaled.topLeft().    toVector2());
-    shader.setVec2("borderTR", scaled.topRight().   toVector2());
-    shader.setVec2("borderBL", scaled.bottomLeft(). toVector2());
-    shader.setVec2("borderBR", scaled.bottomRight().toVector2());
+    // Convert to 2D vector
+    glm::vec2 borderTL = scaled.topLeft    ().toVector2();
+    glm::vec2 borderTR = scaled.topRight   ().toVector2();
+    glm::vec2 borderBL = scaled.bottomLeft ().toVector2();
+    glm::vec2 borderBR = scaled.bottomRight().toVector2();
+
+    // Correct radius overlap
+    {
+        float total;
+        float div;
+
+        // Left Y
+        total = borderTL.y + borderBL.y;
+        if (total > 1.0f) {
+            div = 1.0f / total;
+            borderTL *= div;
+            borderBL *= div;
+        }
+
+        // Right Y
+        total = borderTR.y + borderBR.y;
+        if (total > 1.0f) {
+            div = 1.0f / total;
+            borderTR *= div;
+            borderBR *= div;
+        }
+
+        // Top X
+        total = borderTL.x + borderTR.x;
+        if (total > 1.0f) {
+            div = 1.0f / total;
+            borderTL *= div;
+            borderTR *= div;
+        }
+
+        // Bottom X
+        total = borderBL.x + borderBR.x;
+        if (total > 1.0f) {
+            div = 1.0f / total;
+            borderBL *= div;
+            borderBR *= div;
+        }
+    }
+
+    // Sanity check border radiuses (clamping to [0-1] range to make sure)
+    borderTL = glm::clamp(borderTL, glm::vec2{0.0f}, glm::vec2{1.0f});
+    borderTR = glm::clamp(borderTR, glm::vec2{0.0f}, glm::vec2{1.0f});
+    borderBL = glm::clamp(borderBL, glm::vec2{0.0f}, glm::vec2{1.0f});
+    borderBR = glm::clamp(borderBR, glm::vec2{0.0f}, glm::vec2{1.0f});
+
+    // Cache inverses
+    bool checkTL = false;
+    bool checkTR = false;
+    bool checkBL = false;
+    bool checkBR = false;
+
+    if (borderTL.x * borderTL.y > 0) {
+        checkTL = true;
+        shader.setVec2("inv2TL", 1.0f / glm::pow(borderTL, glm::vec2{2.0f}));
+    }
+    if (borderTR.x * borderTR.y > 0) {
+        checkTR = true;
+        shader.setVec2("inv2TR", 1.0f / glm::pow(borderTR, glm::vec2{2.0f}));
+    }
+    if (borderBL.x * borderBL.y > 0) {
+        checkBL = true;
+        shader.setVec2("inv2BL", 1.0f / glm::pow(borderBL, glm::vec2{2.0f}));
+    }
+    if (borderBR.x * borderBR.y > 0) {
+        checkBR = true;
+        shader.setVec2("inv2BR", 1.0f / glm::pow(borderBR, glm::vec2{2.0f}));
+    }
+
+    shader.setBool("checkTL", checkTL);
+    shader.setBool("checkTR", checkTR);
+    shader.setBool("checkBL", checkBL);
+    shader.setBool("checkBR", checkBR);
+
+    shader.setVec2("borderTL", borderTL);
+    shader.setVec2("borderTR", borderTR);
+    shader.setVec2("borderBL", borderBL);
+    shader.setVec2("borderBR", borderBR);
+
 
     // Draw elements
     glBindVertexArray(VAO);

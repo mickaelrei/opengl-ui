@@ -15,8 +15,8 @@ Radius Radius::ellipticalPixel(int x, int y) {
 }
 
 Radius Radius::ellipticalScale(float x, float y) {
-    float _x = std::clamp(x, 0.0f, 1.0f);
-    float _y = std::clamp(y, 0.0f, 1.0f);
+    float _x = std::max(x, 0.0f);
+    float _y = std::max(y, 0.0f);
     return Radius{_x, _y, false};
 }
 
@@ -27,7 +27,7 @@ Radius Radius::circularPixel(int r) {
 }
 
 Radius Radius::circularScale(float r) {
-    float _r = std::clamp(r, 0.0f, 1.0f);
+    float _r = std::max(r, 0.0f);
     return Radius{_r, _r, false};
 }
 

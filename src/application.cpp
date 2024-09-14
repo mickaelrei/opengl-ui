@@ -86,32 +86,23 @@ void Application::start()
         // -----
         processInput();
 
+
         double mx, my;
         glfwGetCursorPos(window, &mx, &my);
+        mx /= width();
+        my /= height();
 
-        auto rtl = Radius::ellipticalPixel(          mx,            my);
-        auto rtr = Radius::ellipticalPixel(width() - mx,            my);
-        auto rbl = Radius::ellipticalPixel(          mx, height() - my);
-        auto rbr = Radius::ellipticalPixel(width() - mx, height() - my);
+        auto rtl = Radius::ellipticalScale(       mx,        my);
+        auto rtr = Radius::ellipticalScale(1.0f - mx,        my);
+        auto rbl = Radius::ellipticalScale(       mx, 1.0f - my);
+        auto rbr = Radius::ellipticalScale(1.0f - mx, 1.0f - my);
 
         quad.setBorderRadius(BorderRadius(
-            // Radius::circularScale(1.0f),
-            // Radius::zero(),
-            // Radius::zero(),
-            // Radius::circularScale(1.0f)
-
             rbr,
             rbl,
             rtr,
             rtl
-
-            // rbr,
-            // Radius::zero(),
-            // Radius::zero(),
-            // rtl
         ));
-        // quad.setBorderRadius(BorderRadius::circularScale(mx / width()));
-        // std::cout << "Quad border radius: " << quad.borderRadius() << "\n";
 
         // quad.setRotation(now);
 
