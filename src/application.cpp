@@ -62,8 +62,20 @@ void Application::start()
     // Quad shader
     Shader quadShader{"./shaders/quad_vert_shader.glsl", "./shaders/quad_frag_shader.glsl"};
 
-    Quad quad{glm::vec2{.0f}, glm::vec2{0.5f}};
-    // quad.setBorderRadius(15);
+    auto quad = std::make_shared<Quad>(glm::vec2{.0f}, glm::vec2{0.9f});
+    auto quad1 = std::make_shared<Quad>(glm::vec2{-1.0f + 0.033f, 1.0f - 0.033f}, glm::vec2{0.5f});
+
+    quad->setColor(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+    quad->setBorderRadius(BorderRadius::all(
+        Radius::circularPixel(75)
+    ));
+    quad->addChild(quad1);
+
+    quad1->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+    quad1->setBorderRadius(BorderRadius::all(
+        Radius::circularPixel(15)
+    ));
+    quad1->setAnchorPoint(glm::vec2{0.0f, 1.0f});
 
     // Set polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -87,24 +99,25 @@ void Application::start()
         processInput();
 
 
-        double mx, my;
-        glfwGetCursorPos(window, &mx, &my);
-        mx /= width();
-        my /= height();
+        // double mx, my;
+        // glfwGetCursorPos(window, &mx, &my);
+        // mx /= width();
+        // my /= height();
 
-        auto rtl = Radius::ellipticalScale(       mx,        my);
-        auto rtr = Radius::ellipticalScale(1.0f - mx,        my);
-        auto rbl = Radius::ellipticalScale(       mx, 1.0f - my);
-        auto rbr = Radius::ellipticalScale(1.0f - mx, 1.0f - my);
+        // auto rtl = Radius::ellipticalScale(       mx,        my);
+        // auto rtr = Radius::ellipticalScale(1.0f - mx,        my);
+        // auto rbl = Radius::ellipticalScale(       mx, 1.0f - my);
+        // auto rbr = Radius::ellipticalScale(1.0f - mx, 1.0f - my);
 
-        quad.setBorderRadius(BorderRadius(
-            rbr,
-            rbl,
-            rtr,
-            rtl
-        ));
+        // quad1->setBorderRadius(BorderRadius(
+        //     rbr,
+        //     rbl,
+        //     rtr,
+        //     rtl
+        // ));
 
-        // quad.setRotation(now);
+        // quad1->setSize(glm::vec2{mx, 1.0f- my});
+        quad->setRotation(now);
 
         // Update aspect ratio
         float aspectRatio = (float)width() / (float)height();
@@ -125,7 +138,7 @@ void Application::start()
 
         // Draw quad
         glm::vec2 windowSize{width(), height()};
-        quad.draw(quadShader, windowSize);
+        quad->draw(quadShader, windowSize);
 
         // Swap buffers and poll events
         // ----------------------------

@@ -59,6 +59,14 @@ glm::vec2 Quad::position() const {
     return _pos;
 }
 
+void Quad::setAnchorPoint(const glm::vec2 &anchorPoint) {
+    _anchorPoint = glm::clamp(anchorPoint, glm::vec2{0.0f}, glm::vec2{1.0f});
+}
+
+glm::vec2 Quad::anchorPoint() const {
+    return _anchorPoint;
+}
+
 void Quad::setSize(const glm::vec2 &size) {
     _size = size;
 }
@@ -75,6 +83,14 @@ float Quad::rotation() const {
     return _rotation;
 }
 
+void Quad::setColor(const glm::vec4 &color) {
+    _color = color;
+}
+
+glm::vec4 Quad::color() const {
+    return _color;
+}
+
 void Quad::setBorderRadius(const BorderRadius &borderRadius) {
     _borderRadius = borderRadius;
 }
@@ -83,13 +99,25 @@ BorderRadius Quad::borderRadius() const {
     return _borderRadius;
 }
 
-void Quad::draw(const Shader &shader, const glm::vec2 &windowSize) {
+void Quad::addChild(const std::shared_ptr<Quad> &child) {
+    children.push_back(child);
+}
+
+void Quad::draw(
+    const Shader &shader,
+    const glm::vec2 &windowSize,
+    const glm::mat4 &model
+) const {
+    // Get translation based on anchor point
+    auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
+
     // Set model matrix
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, 0.0f));
-    model = glm::rotate(model, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    model = glm::scale(model, glm::vec3(_size.x, _size.y, 1.0f));
-    shader.setMat4("model", model);
+    glm::mat4 myModel(1.0f);
+    myModel *= model;
+    myModel = glm::translate(myModel, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
+    myModel = glm::rotate(myModel, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+    myModel = glm::scale(myModel, glm::vec3(_size.x, _size.y, 1.0f));
+    shader.setMat4("model", myModel);
 
     // Set attributes
     shader.setVec4("color", _color);
@@ -184,9 +212,13 @@ void Quad::draw(const Shader &shader, const glm::vec2 &windowSize) {
     shader.setVec2("borderBL", borderBL);
     shader.setVec2("borderBR", borderBR);
 
-
     // Draw elements
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // Draw children
+    for (const auto &child : children) {
+        child->draw(shader, windowSize, myModel);
+    }
 }
