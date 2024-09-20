@@ -62,7 +62,7 @@ void Application::start()
     // Quad shader
     Shader quadShader{"./shaders/quad_vert_shader.glsl", "./shaders/quad_frag_shader.glsl"};
 
-    auto quad = std::make_shared<Quad>(glm::vec2{.0f}, glm::vec2{0.9f});
+    auto quad = std::make_shared<Quad>(glm::vec2{.0f}, glm::vec2{0.5f});
     auto quad1 = std::make_shared<Quad>(glm::vec2{-1.0f + 0.033f, 1.0f - 0.033f}, glm::vec2{0.5f});
 
     quad->setColor(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
@@ -98,11 +98,10 @@ void Application::start()
         // -----
         processInput();
 
-
-        // double mx, my;
-        // glfwGetCursorPos(window, &mx, &my);
-        // mx /= width();
-        // my /= height();
+        double mx, my;
+        glfwGetCursorPos(window, &mx, &my);
+        mx /= width();
+        my /= height();
 
         // auto rtl = Radius::ellipticalScale(       mx,        my);
         // auto rtr = Radius::ellipticalScale(1.0f - mx,        my);
@@ -116,7 +115,7 @@ void Application::start()
         //     rtl
         // ));
 
-        // quad1->setSize(glm::vec2{mx, 1.0f- my});
+        quad1->setSize(glm::vec2{mx, my});
         quad->setRotation(now);
 
         // Set projection matrix

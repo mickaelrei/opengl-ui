@@ -24,6 +24,8 @@ Quad::Quad(
     const glm::vec2 &size,
     const glm::vec4 &color
 ) : _pos{pos}, _size{size}, _color{color} {
+    calculateModelMatrix();
+
     // Create vertex objects
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -53,6 +55,7 @@ Quad::Quad(
 
 void Quad::setPosition(const glm::vec2 &pos) {
     _pos = pos;
+    calculateModelMatrix();
 }
 
 glm::vec2 Quad::position() const {
@@ -61,6 +64,7 @@ glm::vec2 Quad::position() const {
 
 void Quad::setAnchorPoint(const glm::vec2 &anchorPoint) {
     _anchorPoint = glm::clamp(anchorPoint, glm::vec2{0.0f}, glm::vec2{1.0f});
+    calculateModelMatrix();
 }
 
 glm::vec2 Quad::anchorPoint() const {
@@ -68,7 +72,8 @@ glm::vec2 Quad::anchorPoint() const {
 }
 
 void Quad::setSize(const glm::vec2 &size) {
-    _size = size;
+    _size = glm::max(glm::vec2{0.0f}, size);
+    calculateModelMatrix();
 }
 
 glm::vec2 Quad::size() const {
@@ -77,6 +82,7 @@ glm::vec2 Quad::size() const {
 
 void Quad::setRotation(float rotation) {
     _rotation = rotation;
+    calculateModelMatrix();
 }
 
 float Quad::rotation() const {
@@ -108,21 +114,29 @@ void Quad::draw(
     const glm::vec2 &windowSize,
     const glm::mat4 &model
 ) const {
-    // Get translation based on anchor point
-    auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
+    setUniforms(shader, windowSize, model);
 
-    // Set model matrix
-    glm::mat4 myModel(1.0f);
-    myModel *= model;
-    myModel = glm::translate(myModel, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
-    myModel = glm::rotate(myModel, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    myModel = glm::scale(myModel, glm::vec3(_size.x, _size.y, 1.0f));
-    shader.setMat4("model", myModel);
+    // Draw elements
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
+    // Draw children
+    for (const auto &child : children) {
+        child->draw(shader, windowSize, model * _modelMatrix);
+    }
+}
+
+void Quad::setUniforms(
+    const Shader &shader,
+    const glm::vec2 &windowSize,
+    const glm::mat4 &model
+) const {
     // Set attributes
     shader.setVec4("color", _color);
     shader.setVec2("pos", _pos);
     shader.setVec2("size", _size);
+    shader.setMat4("model", model * _modelMatrix);
 
     // Get border radius in [0-1] scale
     glm::vec2 quadPixelsSize = windowSize * _size;
@@ -210,14 +224,15 @@ void Quad::draw(
     shader.setVec2("borderTR", borderTR);
     shader.setVec2("borderBL", borderBL);
     shader.setVec2("borderBR", borderBR);
+}
 
-    // Draw elements
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+void Quad::calculateModelMatrix() {
+    // Get translation based on anchor point
+    auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
 
-    // Draw children
-    for (const auto &child : children) {
-        child->draw(shader, windowSize, myModel);
-    }
+    // Set model matrix
+    _modelMatrix = glm::mat4{1.0f};
+    _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+    _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_size.x, _size.y, 1.0f));
 }

@@ -86,6 +86,19 @@ public:
     ) const;
 
 private:
+    /// @brief Sets needed uniforms on shader to draw the quad
+    /// @param shader shader to use
+    /// @param windowSize window size in pixels
+    /// @param model model matrix
+    void setUniforms(
+        const Shader &shader,
+        const glm::vec2 &windowSize,
+        const glm::mat4 &model
+    ) const;
+
+    /// @brief Calculates model matrix based on position, size and rotation
+    void calculateModelMatrix();
+
     /// @brief Position
     glm::vec2 _pos = glm::vec2{0.0f};
 
@@ -104,6 +117,9 @@ private:
 
     /// @brief Border radius
     BorderRadius _borderRadius;
+
+    /// @brief Model matrix
+    glm::mat4 _modelMatrix = glm::mat4{1.0f};
 
     /// @brief List of children
     std::vector<std::shared_ptr<Quad>> children;
