@@ -126,7 +126,6 @@ void Quad::draw(
 
     // Get border radius in [0-1] scale
     glm::vec2 quadPixelsSize = windowSize * _size;
-    quadPixelsSize.y *= windowSize.x / windowSize.y;    // correct aspect ratio
     BorderRadius scaled = _borderRadius.toScale(quadPixelsSize);
 
     // Convert to 2D vector

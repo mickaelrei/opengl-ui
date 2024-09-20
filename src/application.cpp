@@ -119,11 +119,8 @@ void Application::start()
         // quad1->setSize(glm::vec2{mx, 1.0f- my});
         quad->setRotation(now);
 
-        // Update aspect ratio
-        float aspectRatio = (float)width() / (float)height();
-
         // Set projection matrix
-        glm::mat4 projection = glm::ortho(-aspectRatio, aspectRatio, -1.0f, 1.0f, -1.0f, 1.0f);
+        glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
         quadShader.setMat4("projection", projection);
 
         // Update title
