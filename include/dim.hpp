@@ -12,7 +12,7 @@ public:
     Dim(int pixels = 0, float scale = 0.0f);
 
     /// @brief Creates an empty/zero-ed dimension
-    /// @return 
+    /// @return dimension with zero values
     static Dim zero();
 
     /// @brief Constructor only for pixels
@@ -96,7 +96,7 @@ public:
     );
 
     /// @brief Creates an empty/zero-ed 2D dimension
-    /// @return 
+    /// @return 2D dimension with zero values
     static Dim2 zero();
 
     /// @brief Constructor only for pixels
