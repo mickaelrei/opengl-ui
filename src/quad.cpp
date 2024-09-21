@@ -1,6 +1,6 @@
 #include <glm/glm.hpp>
 
-#include "include/quad.hpp"
+#include "quad.hpp"
 
 // Default vertices for quad
 const float __vertices[] = {

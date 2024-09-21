@@ -4,11 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "include/glad.h"
+#include "glad.h"
 
-#include "include/application.hpp"
-#include "include/shader.hpp"
-#include "include/quad.hpp"
+#include "application.hpp"
+#include "shader.hpp"
+#include "quad.hpp"
 
 // Window resize
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height)

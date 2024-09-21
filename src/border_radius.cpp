@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "include/border_radius.hpp"
+#include "border_radius.hpp"
 
 Radius::Radius(
     float x,
