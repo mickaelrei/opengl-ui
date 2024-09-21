@@ -12,7 +12,7 @@ $(BIN):
 	@if [ ! -d $(BIN) ]; then mkdir $(BIN); fi
 
 $(TARGET): $(BIN)/glad.o $(BIN)/application.o $(BIN)/shader.o $(BIN)/quad.o $(BIN)/border_radius.o $(BIN)/dim.o ./main.cpp
-	$(CXX) -I. -I./glad/include/glad $(BIN)/glad.o $(BIN)/application.o $(BIN)/shader.o $(BIN)/quad.o $(BIN)/border_radius.o ./main.cpp -o $(TARGET) $(CFLAGS)
+	$(CXX) -I. -I./glad/include/glad $(BIN)/glad.o $(BIN)/application.o $(BIN)/shader.o $(BIN)/quad.o $(BIN)/border_radius.o $(BIN)/dim.o ./main.cpp -o $(TARGET) $(CFLAGS)
 
 $(BIN)/application.o: $(INCLUDE)/application.hpp $(SRC)/application.cpp
 	$(CXX) -I. -I$(INCLUDE) -c $(SRC)/application.cpp -o $(BIN)/application.o $(CFLAGS)

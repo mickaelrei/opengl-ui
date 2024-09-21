@@ -3,8 +3,9 @@
 #include <vector>
 #include <memory>
 
-#include "include/shader.hpp"
-#include "include/border_radius.hpp"
+#include "shader.hpp"
+#include "border_radius.hpp"
+#include "dim.hpp"
 
 /// @brief Class to represent a rectangular UI element
 class Quad {
@@ -17,18 +18,18 @@ public:
     /// @param size size
     /// @param color color
     Quad(
-        const glm::vec2 &pos,
-        const glm::vec2 &size,
+        const Dim2 &pos,
+        const Dim2 &size,
         const glm::vec4 &color = glm::vec4{1.0f}
     );
 
     /// @brief Set new position
     /// @param pos position vector
-    void setPosition(const glm::vec2 &pos);
+    void setPosition(const Dim2 &pos);
 
     /// @brief Get position
     /// @return position vector
-    glm::vec2 position() const;
+    Dim2 position() const;
 
     /// @brief Set new anchor point
     /// @param anchorPoint anchor point vector
@@ -41,11 +42,11 @@ public:
 
     /// @brief Set new size
     /// @param size size vector
-    void setSize(const glm::vec2 &size);
+    void setSize(const Dim2 &size);
 
     /// @brief Get size
     /// @return size vector
-    glm::vec2 size() const;
+    Dim2 size() const;
 
     /// @brief Set new rotation
     /// @param rotation rotation radians
@@ -83,7 +84,7 @@ public:
         const Shader &shader,
         const glm::vec2 &windowSize,
         const glm::mat4 &model = glm::mat4{1.0f}
-    ) const;
+    );
 
 private:
     /// @brief Sets needed uniforms on shader to draw the quad
@@ -94,20 +95,20 @@ private:
         const Shader &shader,
         const glm::vec2 &windowSize,
         const glm::mat4 &model
-    ) const;
+    );
 
     /// @brief Calculates model matrix based on position, size and rotation
     void calculateModelMatrix();
 
     /// @brief Position
-    glm::vec2 _pos = glm::vec2{0.0f};
+    Dim2 _pos;
 
     /// @brief Anchor point
     /// @note [0, 0] means _pos is taken as bottom left, [0.5, 0.5] as center and [1, 1] as top right
     glm::vec2 _anchorPoint = glm::vec2{0.5f};
 
     /// @brief Size
-    glm::vec2 _size = glm::vec2{0.0f};
+    Dim2 _size;
 
     /// @brief Rotation in radians
     float _rotation = 0.0f;

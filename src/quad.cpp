@@ -20,8 +20,8 @@ const unsigned int __indices[] = {
 Quad::Quad() {}
 
 Quad::Quad(
-    const glm::vec2 &pos,
-    const glm::vec2 &size,
+    const Dim2 &pos,
+    const Dim2 &size,
     const glm::vec4 &color
 ) : _pos{pos}, _size{size}, _color{color} {
     calculateModelMatrix();
@@ -53,12 +53,12 @@ Quad::Quad(
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Quad::setPosition(const glm::vec2 &pos) {
+void Quad::setPosition(const Dim2 &pos) {
     _pos = pos;
     calculateModelMatrix();
 }
 
-glm::vec2 Quad::position() const {
+Dim2 Quad::position() const {
     return _pos;
 }
 
@@ -71,12 +71,12 @@ glm::vec2 Quad::anchorPoint() const {
     return _anchorPoint;
 }
 
-void Quad::setSize(const glm::vec2 &size) {
-    _size = glm::max(glm::vec2{0.0f}, size);
+void Quad::setSize(const Dim2 &size) {
+    _size = Dim2::max(Dim2::zero(), size);
     calculateModelMatrix();
 }
 
-glm::vec2 Quad::size() const {
+Dim2 Quad::size() const {
     return _size;
 }
 
@@ -113,7 +113,7 @@ void Quad::draw(
     const Shader &shader,
     const glm::vec2 &windowSize,
     const glm::mat4 &model
-) const {
+) {
     setUniforms(shader, windowSize, model);
 
     // Draw elements
@@ -122,7 +122,7 @@ void Quad::draw(
     glBindVertexArray(0);
 
     // Draw children
-    for (const auto &child : children) {
+    for (auto &child : children) {
         child->draw(shader, windowSize, model * _modelMatrix);
     }
 }
@@ -131,15 +131,37 @@ void Quad::setUniforms(
     const Shader &shader,
     const glm::vec2 &windowSize,
     const glm::mat4 &model
-) const {
+) {
+    // Get translation based on anchor point
+    auto _scaledPos = _pos.toScale(windowSize);
+    auto _scaledSize = _size.toScale(windowSize);
+    auto _correctedPos = _scaledPos - _scaledSize * (_anchorPoint * 2.0f - 1.0f);
+
+    _correctedPos = glm::vec2{0.0f};
+    _scaledSize = glm::vec2{0.5f};
+
+    printf("\n\nsize: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
+    printf("pos: (%.5f, %.5f)\n", _correctedPos.x, _correctedPos.y);
+
+    // Set model matrix
+    // _modelMatrix = glm::mat4{1.0f};
+    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
+    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_scaledSize.x, _scaledSize.y, 1.0f));
+
+    _modelMatrix = glm::mat4{1.0f};
+    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
+    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_scaledSize.x, _scaledSize.y, 1.0f));
+
     // Set attributes
     shader.setVec4("color", _color);
-    shader.setVec2("pos", _pos);
-    shader.setVec2("size", _size);
+    shader.setVec2("pos", _pos.toScale(windowSize));
+    shader.setVec2("size", _size.toScale(windowSize));
     shader.setMat4("model", model * _modelMatrix);
 
     // Get border radius in [0-1] scale
-    glm::vec2 quadPixelsSize = windowSize * _size;
+    glm::vec2 quadPixelsSize = _size.toPixels(windowSize);
     BorderRadius scaled = _borderRadius.toScale(quadPixelsSize);
 
     // Convert to 2D vector
@@ -215,10 +237,10 @@ void Quad::setUniforms(
         shader.setVec2("inv2BR", 1.0f / glm::pow(borderBR, glm::vec2{2.0f}));
     }
 
-    shader.setBool("checkTL", checkTL);
-    shader.setBool("checkTR", checkTR);
-    shader.setBool("checkBL", checkBL);
-    shader.setBool("checkBR", checkBR);
+    shader.setBool("checkTL", false);//checkTL);
+    shader.setBool("checkTR", false);//checkTR);
+    shader.setBool("checkBL", false);//checkBL);
+    shader.setBool("checkBR", false);//checkBR);
 
     shader.setVec2("borderTL", borderTL);
     shader.setVec2("borderTR", borderTR);
@@ -227,12 +249,12 @@ void Quad::setUniforms(
 }
 
 void Quad::calculateModelMatrix() {
-    // Get translation based on anchor point
-    auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
+    // // Get translation based on anchor point
+    // auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
 
-    // Set model matrix
-    _modelMatrix = glm::mat4{1.0f};
-    _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
-    _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_size.x, _size.y, 1.0f));
+    // // Set model matrix
+    // _modelMatrix = glm::mat4{1.0f};
+    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
+    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
+    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_size.x, _size.y, 1.0f));
 }

@@ -62,15 +62,19 @@ void Application::start()
     // Quad shader
     Shader quadShader{"./shaders/quad_vert_shader.glsl", "./shaders/quad_frag_shader.glsl"};
 
-    auto quad = std::make_shared<Quad>(glm::vec2{.0f}, glm::vec2{0.5f});
-    auto quad1 = std::make_shared<Quad>(glm::vec2{-1.0f + 0.033f, 1.0f - 0.033f}, glm::vec2{0.5f});
+    auto quad = std::make_shared<Quad>();
+    auto quad1 = std::make_shared<Quad>();
 
+    quad->setPosition(Dim2::fromScale(0.0f, 0.0f));
+    quad->setSize(Dim2::fromScale(0.5f, 0.5f));
     quad->setColor(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
-    quad->setBorderRadius(BorderRadius::all(
-        Radius::circularPixel(75)
-    ));
-    quad->addChild(quad1);
+    // quad->setBorderRadius(BorderRadius::all(
+    //     Radius::circularPixel(75)
+    // ));
+    // quad->addChild(quad1);
 
+    quad1->setPosition(Dim2::fromScale(-1.0f, 1.0f));
+    quad1->setSize(Dim2::fromScale(0.5f, 0.5f));
     quad1->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
     quad1->setBorderRadius(BorderRadius::all(
         Radius::circularPixel(15)
@@ -115,7 +119,7 @@ void Application::start()
         //     rtl
         // ));
 
-        quad1->setSize(glm::vec2{mx, my});
+        quad1->setSize(Dim2::fromScale(mx, my));
         quad->setRotation(now);
 
         // Set projection matrix

@@ -1,13 +1,19 @@
 #pragma once
 
-/// @brief Class to represent a dimension which holds an independent "pixel" value
+#include <glm/glm.hpp>
+
+/// @brief Class to represent a dimension which holds an independent "pixels" value
 ///        and a viewport size dependent "scale" value
 class Dim {
 public:
     /// @brief Default constructor
     /// @param pixels pixels
     /// @param scale scale
-    Dim(int pixels = 0, float scale = 1.0f);
+    Dim(int pixels = 0, float scale = 0.0f);
+
+    /// @brief Creates an empty/zero-ed dimension
+    /// @return 
+    static Dim zero();
 
     /// @brief Constructor only for pixels
     /// @param pixels pixels
@@ -18,6 +24,25 @@ public:
     /// @param scale scale
     /// @return Dim with specified scale and zero pixels
     static Dim fromScale(float scale);
+
+    /// @brief Returns the maximum between two dimensions
+    /// @param d0 first dimension
+    /// @param d1 second dimension
+    /// @return maximum of given dimensions
+    static Dim max(const Dim &d0, const Dim &d1);
+
+    /// @brief Returns the minimum between two dimensions
+    /// @param d0 first dimension
+    /// @param d1 second dimension
+    /// @return minimum of given dimensions
+    static Dim min(const Dim &d0, const Dim &d1);
+
+    /// @brief Returns a dimension clamped to a min-max range
+    /// @param d dimension to be clamped
+    /// @param min minimum value
+    /// @param max maximum value
+    /// @return dimension clamped
+    static Dim clamp(const Dim &d, const Dim &min, const Dim &max);
 
     Dim operator+ (const Dim &d) const;
     Dim &operator+= (const Dim &d);
@@ -33,6 +58,16 @@ public:
     /// @brief Get scale
     /// @return scale
     float scale() const;
+
+    /// @brief Returns this dimension measured as scale
+    /// @param dimensionSize max dimension size in pixels
+    /// @return dimension in scale
+    float toScale(float dimensionSize) const;
+
+    /// @brief Returns this dimension measured as pixels
+    /// @param dimensionSize max dimension size in pixels
+    /// @return dimension in pixels
+    float toPixels(float dimensionSize) const;
 
 private:
     /// @brief Dimension in pixels, independent of viewport size
@@ -60,10 +95,14 @@ public:
         int pixelsY = 0, float scaleY = 0.0f
     );
 
+    /// @brief Creates an empty/zero-ed 2D dimension
+    /// @return 
+    static Dim2 zero();
+
     /// @brief Constructor only for pixels
     /// @param x pixels in x-axis
     /// @param y pixels in y-axis
-    /// @return Dim with specified pixel dimensions and zero scale
+    /// @return Dim with specified pixels dimensions and zero scale
     static Dim2 fromPixels(int x, int y);
 
     /// @brief Constructor only for scale
@@ -71,6 +110,25 @@ public:
     /// @param y scale in y-axis
     /// @return Dim with specified scale dimensions and zero pixels
     static Dim2 fromScale(float x, float y);
+
+    /// @brief Returns the maximum between two 2D dimensions
+    /// @param d0 first 2D dimension
+    /// @param d1 second 2D dimension
+    /// @return maximum of given 2D dimensions
+    static Dim2 max(const Dim2 &d0, const Dim2 &d1);
+
+    /// @brief Returns the minimum between two 2D dimensions
+    /// @param d0 first 2D dimension
+    /// @param d1 second 2D dimension
+    /// @return minimum of given 2D dimensions
+    static Dim2 min(const Dim2 &d0, const Dim2 &d1);
+
+    /// @brief Returns a 2D dimension clamped to a min-max range
+    /// @param d 2D dimension to be clamped
+    /// @param min minimum value
+    /// @param max maximum value
+    /// @return 2D dimension clamped
+    static Dim2 clamp(const Dim2 &d, const Dim2 &min, const Dim2 &max);
 
     Dim2 operator+ (const Dim2 &d) const;
     Dim2 &operator+= (const Dim2 &d);
@@ -86,6 +144,16 @@ public:
     /// @brief Get dimension in y-axis
     /// @return dimension in y-axis
     Dim y() const;
+
+    /// @brief Returns this 2D dimension measured as scale
+    /// @param windowSize render viewport size vector in pixels
+    /// @return dimension in scale
+    glm::vec2 toScale(const glm::vec2 &windowSize) const;
+
+    /// @brief Returns this 2D dimension measured as pixels
+    /// @param windowSize render viewport size vector in pixels
+    /// @return dimension in pixels
+    glm::vec2 toPixels(const glm::vec2 &windowSize) const;
 
 private:
     /// @brief Dimension in x-axis
