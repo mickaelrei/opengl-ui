@@ -42,9 +42,10 @@ void App::start() {
     quads.push_back(quad1);
 
     quad->setSize(Dim2::fromPixels(300, 300));
+    // quad->setSize(Dim2::fromScale(0.5f, 0.5f));
     quad->setColor(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
     quad->setBorderRadius(BorderRadius::all(
-        Radius::circularPixel(75)
+        Radius::circular(Dim::fromPixels(75))
     ));
     quad->addChild(quad1);
 
@@ -52,7 +53,7 @@ void App::start() {
     quad1->setPosition(Dim2::fromScale(-1.0f, 1.0f));
     quad1->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
     quad1->setBorderRadius(BorderRadius::all(
-        Radius::circularPixel(15)
+        Radius::circular(Dim::fromPixels(15))
     ));
     quad1->setAnchorPoint(glm::vec2{0.0f, 1.0f});
 
@@ -81,10 +82,10 @@ void App::start() {
         mx /= width();
         my /= height();
 
-        auto rtl = Radius::ellipticalScale(       mx,        my);
-        auto rtr = Radius::ellipticalScale(1.0f - mx,        my);
-        auto rbl = Radius::ellipticalScale(       mx, 1.0f - my);
-        auto rbr = Radius::ellipticalScale(1.0f - mx, 1.0f - my);
+        auto rtl = Radius::elliptical(Dim2::fromScale(       mx,        my));
+        auto rtr = Radius::elliptical(Dim2::fromScale(1.0f - mx,        my));
+        auto rbl = Radius::elliptical(Dim2::fromScale(       mx, 1.0f - my));
+        auto rbr = Radius::elliptical(Dim2::fromScale(1.0f - mx, 1.0f - my));
 
         quad1->setBorderRadius(BorderRadius(
             rbr,

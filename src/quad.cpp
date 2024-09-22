@@ -138,13 +138,12 @@ void Quad::setUniforms(
 
     // Get border radius in [0-1] scale
     glm::vec2 quadPixelsSize = _size.toPixels(windowSize);
-    BorderRadius scaled = _borderRadius.toScale(quadPixelsSize);
 
     // Convert to 2D vector
-    glm::vec2 borderTL = scaled.topLeft    ().toVector2();
-    glm::vec2 borderTR = scaled.topRight   ().toVector2();
-    glm::vec2 borderBL = scaled.bottomLeft ().toVector2();
-    glm::vec2 borderBR = scaled.bottomRight().toVector2();
+    glm::vec2 borderTL = _borderRadius.topLeft    ().toScale(quadPixelsSize);
+    glm::vec2 borderTR = _borderRadius.topRight   ().toScale(quadPixelsSize);
+    glm::vec2 borderBL = _borderRadius.bottomLeft ().toScale(quadPixelsSize);
+    glm::vec2 borderBR = _borderRadius.bottomRight().toScale(quadPixelsSize);
 
     // Correct radius overlap
     {
@@ -234,8 +233,6 @@ void Quad::calculateModelMatrix() {
     auto _scaledPos = _pos.toScale(_lastWindowSize);
     auto _scaledSize = _size.toScale(_lastWindowSize);
     auto _correctedPos = _scaledPos - _scaledSize * (_anchorPoint * 2.0f - 1.0f);
-
-    printf("scaled size: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
 
     // Set model matrix
     _modelMatrix = glm::mat4{1.0f};

@@ -4,30 +4,20 @@
 
 #include <glm/glm.hpp>
 
+#include "dim.hpp"
+
 /// @brief Class used to build instances of BorderRadius
 class Radius {
 public:
-    /// @brief Constructor for elliptical radius in pixel scale
-    /// @param x radius on horizontal axis in pixels
-    /// @param y radius on vertical axis in pixels
-    /// @return elliptical radius in pixel scale
-    static Radius ellipticalPixel(int x, int y);
+    /// @brief Constructor for elliptical radius
+    /// @param r radius 2D dimension
+    /// @return elliptical radius
+    static Radius elliptical(const Dim2 &r);
 
-    /// @brief Constructor for elliptical radius in [0-1] scale
-    /// @param x radius on horizontal axis in [0-1]
-    /// @param y radius on vertical axis in [0-1]
-    /// @return elliptical radius in [0-1] scale
-    static Radius ellipticalScale(float x, float y);
-
-    /// @brief Constructor for circular radius in pixel scale
-    /// @param r radius in pixels
-    /// @return circular radius in pixel scale
-    static Radius circularPixel(int r);
-
-    /// @brief Constructor for circular radius in [0-1] scale
-    /// @param r radius in [0-1]
-    /// @return circular radius in [0-1] scale
-    static Radius circularScale(float r);
+    /// @brief Constructor for circular radius
+    /// @param r radius dimension
+    /// @return circular radius
+    static Radius circular(const Dim &r);
 
     /// @brief Empty radius
     /// @return radius with no rounding
@@ -35,25 +25,21 @@ public:
 
     /// @brief Gets the horizontal radius
     /// @return horizontal radius in current scale
-    float x() const;
+    Dim x() const;
 
     /// @brief Gets the vertical radius
     /// @return vertical radius in current scale
-    float y() const;
+    Dim y() const;
 
-    /// @brief Converts to a 2D vector
-    /// @return 2D vector correspondent of the radii
-    glm::vec2 toVector2() const;
-
-    /// @brief Returns this radius measured from pixels to scale
+    /// @brief Returns this radius measured as scale
     /// @param viewportSize viewport render size vector in pixels
-    /// @return radius converted to [0-1] scale
-    Radius toScale(const glm::vec2 &viewportSize) const;
+    /// @return radius in scale
+    glm::vec2 toScale(const glm::vec2 &viewportSize) const;
 
-    /// @brief Returns this radius measured from scale to pixels
+    /// @brief Returns this radius measured as pixels
     /// @param viewportSize viewport render size vector in pixels
-    /// @return radius converted to pixel scale
-    Radius toPixels(const glm::vec2 &viewportSize) const;
+    /// @return radius in pixels
+    glm::vec2 toPixels(const glm::vec2 &viewportSize) const;
 
     /// @brief Output operator
     /// @param os stream to send output to
@@ -62,16 +48,16 @@ public:
     friend std::ostream &operator<< (std::ostream &os, const Radius &r);
 
 private:
-    Radius(float x, float y, bool isPixels);
+    /// @brief Default constructor
+    /// @param x radius dimension on x-axis
+    /// @param y radius dimension on y-axis
+    Radius(const Dim &x, const Dim &y);
 
-    /// @brief Radius on horizontal axis
-    float _x;
+    /// @brief Radius dimension on x-axis
+    Dim _x;
 
-    /// @brief Radius on vertical axis
-    float _y;
-
-    /// @brief Whether this radius is measured in pixels
-    bool _isPixels;
+    /// @brief Radius dimension on y-axis
+    Dim _y;
 };
 
 /// @brief Class to use for defining border radiuses on UI elements
@@ -94,15 +80,10 @@ public:
     /// @return border radius with equal corners
     static BorderRadius all(Radius radius);
 
-    /// @brief Creates a circular border radius in pixel scale
-    /// @param radius radius in pixels
+    /// @brief Creates a circular border radius
+    /// @param radius radius
     /// @return border radius with all 4 corners circularly rounded
-    static BorderRadius circularPixel(int radius);
-
-    /// @brief Creates a circular border radius in [0-1] scale
-    /// @param radius radius in [0-1] scale
-    /// @return border radius with all 4 corners circularly rounded
-    static BorderRadius circularScale(float radius);
+    static BorderRadius circular(const Dim &r);
 
     /// @brief Creates a horizontally symmetric border radius
     /// @param left radius on both left corners
@@ -141,16 +122,6 @@ public:
     /// @brief Gets the bottom right radius
     /// @return bottom right radius
     Radius bottomRight() const;
-
-    /// @brief Returns this border radius measured from pixels to scale
-    /// @param viewportSize viewport render size vector in pixels
-    /// @return border radius converted to [0-1] scale
-    BorderRadius toScale(const glm::vec2 &viewportSize) const;
-
-    /// @brief Returns this border radius measured from scale to pixels
-    /// @param viewportSize viewport render size vector in pixels
-    /// @return border radius converted to pixels scale
-    BorderRadius toPixels(const glm::vec2 &viewportSize) const;
 
     /// @brief Output operator
     /// @param os stream to send output to

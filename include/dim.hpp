@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 #include <glm/glm.hpp>
 
 /// @brief Class to represent a dimension which holds an independent "pixels" value
@@ -50,6 +52,12 @@ public:
     Dim  operator-  () const;
     Dim  operator-  (const Dim &d) const;
     Dim& operator-= (const Dim &d);
+
+    /// @brief Output operator
+    /// @param os stream to send output to
+    /// @param r dimension to output
+    /// @return stream with outputted dimension
+    friend std::ostream &operator<< (std::ostream &os, const Dim &r);
 
     /// @brief Get pixels
     /// @return pixels
@@ -136,6 +144,12 @@ public:
     Dim2  operator-  () const;
     Dim2  operator-  (const Dim2 &d) const;
     Dim2& operator-= (const Dim2 &d);
+
+    /// @brief Output operator
+    /// @param os stream to send output to
+    /// @param r 2D dimension to output
+    /// @return stream with outputted 2D dimension
+    friend std::ostream &operator<< (std::ostream &os, const Dim2 &r);
 
     /// @brief Get dimension in x-axis
     /// @return dimension in x-axis

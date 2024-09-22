@@ -63,6 +63,11 @@ Dim &Dim::operator-= (const Dim &d) {
     return *this;
 }
 
+std::ostream &operator<< (std::ostream &os, const Dim &r) {
+    os << "<scale=" << r._scale << ", pixels=" << r._pixels << ">";
+    return os;
+}
+
 int Dim::pixels() const {
     return _pixels;
 }
@@ -144,6 +149,11 @@ Dim2 Dim2::operator- (const Dim2 &d) const {
 Dim2 &Dim2::operator-= (const Dim2 &d) {
     *this += -d;
     return *this;
+}
+
+std::ostream &operator<< (std::ostream &os, const Dim2 &r) {
+    os << "<x=" << r._x << ", y=" << r._y << ">";
+    return os;
 }
 
 Dim Dim2::x() const {
