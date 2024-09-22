@@ -140,8 +140,8 @@ void Quad::setUniforms(
     _correctedPos = glm::vec2{0.0f};
     _scaledSize = glm::vec2{0.5f};
 
-    printf("\n\nsize: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
-    printf("pos: (%.5f, %.5f)\n", _correctedPos.x, _correctedPos.y);
+    // printf("\n\nsize: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
+    // printf("pos: (%.5f, %.5f)\n", _correctedPos.x, _correctedPos.y);
 
     // Set model matrix
     // _modelMatrix = glm::mat4{1.0f};

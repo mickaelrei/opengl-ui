@@ -44,12 +44,12 @@ public:
     /// @return dimension clamped
     static Dim clamp(const Dim &d, const Dim &min, const Dim &max);
 
-    Dim operator+ (const Dim &d) const;
-    Dim &operator+= (const Dim &d);
+    Dim  operator+  (const Dim &d) const;
+    Dim& operator+= (const Dim &d);
 
-    Dim operator- () const;
-    Dim operator- (const Dim &d) const;
-    Dim &operator-= (const Dim &d);
+    Dim  operator-  () const;
+    Dim  operator-  (const Dim &d) const;
+    Dim& operator-= (const Dim &d);
 
     /// @brief Get pixels
     /// @return pixels
@@ -130,12 +130,12 @@ public:
     /// @return 2D dimension clamped
     static Dim2 clamp(const Dim2 &d, const Dim2 &min, const Dim2 &max);
 
-    Dim2 operator+ (const Dim2 &d) const;
-    Dim2 &operator+= (const Dim2 &d);
+    Dim2  operator+  (const Dim2& d) const;
+    Dim2& operator+= (const Dim2 &d);
 
-    Dim2 operator- () const;
-    Dim2 operator- (const Dim2 &d) const;
-    Dim2 &operator-= (const Dim2 &d);
+    Dim2  operator-  () const;
+    Dim2  operator-  (const Dim2 &d) const;
+    Dim2& operator-= (const Dim2 &d);
 
     /// @brief Get dimension in x-axis
     /// @return dimension in x-axis
