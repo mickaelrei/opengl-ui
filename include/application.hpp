@@ -38,6 +38,11 @@ public:
     /// @param height height in pixels
     void setHeight(const int height);
 
+    /// @brief Callback for window resize
+    /// @param width new width
+    /// @param height new heigth
+    virtual void framebufferSizeCallback(int width, int height);
+
 protected:
     /// @brief Callback for input processing
     /// @param window

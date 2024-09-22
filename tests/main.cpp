@@ -12,7 +12,19 @@
 class App : public Application {
 public:
     void start() override;
+    void framebufferSizeCallback(int width, int height) override;
+
+    std::vector<std::shared_ptr<Quad>> quads;
 };
+
+void App::framebufferSizeCallback(int width, int height) {
+    Application::framebufferSizeCallback(width, height);
+
+    glm::vec2 windowSize{(float)width, (float)height};
+    for (auto &quad : quads) {
+        quad->onWindowResize(windowSize);
+    }
+}
 
 void App::start() {
     std::string rootPath = PROJECT_ROOT_FOLDER;
@@ -22,15 +34,22 @@ void App::start() {
         rootPath + "/" + "./shaders/quad_frag_shader.glsl"
     };
 
-    auto quad = std::make_shared<Quad>();
-    auto quad1 = std::make_shared<Quad>();
+    glm::vec2 windowSize{width(), height()};
+    auto quad = std::make_shared<Quad>(windowSize);
+    auto quad1 = std::make_shared<Quad>(windowSize);
 
+    quads.push_back(quad);
+    quads.push_back(quad1);
+
+    quad->setSize(Dim2::fromPixels(300, 300));
     quad->setColor(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
     quad->setBorderRadius(BorderRadius::all(
         Radius::circularPixel(75)
     ));
     quad->addChild(quad1);
 
+    quad1->setSize(Dim2::fromScale(0.5f, 0.5f));
+    quad1->setPosition(Dim2::fromScale(-1.0f, 1.0f));
     quad1->setColor(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
     quad1->setBorderRadius(BorderRadius::all(
         Radius::circularPixel(15)
@@ -47,8 +66,7 @@ void App::start() {
     // Render loop
     // -----------
     float before = glfwGetTime();
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // Get dt
         float now = glfwGetTime();
         float dt = now - before;
@@ -75,7 +93,7 @@ void App::start() {
             rtl
         ));
 
-        // quad1->setSize(glm::vec2{mx, my});
+        quad1->setSize(Dim2::fromScale(mx, my));
         quad->setRotation(now);
 
         // Set projection matrix

@@ -6,12 +6,12 @@
 
 // Window resize
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
-
-    (void)window;
-    glViewport(0, 0, width, height);
+    Application *app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->framebufferSizeCallback(width, height);
 }
 
-static void errorCallback(int errorCode, const char* description) {
+static void glfwErrorCallback(int errorCode, const char* description) {
+    std::cerr << "GLFW Error;\n";
     std::cerr << "Error code: " << errorCode << "\n";
     std::cerr << "Description: " << description << "\n";
 }
@@ -20,7 +20,7 @@ Application::Application() : Application{"", 600, 600} {}
 
 Application::Application(const std::string &title, const int width, const int height)
     : title{title} {
-    glfwSetErrorCallback(errorCallback);
+    glfwSetErrorCallback(glfwErrorCallback);
 
     // Init GLFW
     // ---------
@@ -32,19 +32,19 @@ Application::Application(const std::string &title, const int width, const int he
     // Create window
     // -------------
     window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-    if (window == NULL)
-    {
+    if (window == NULL) {
         std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
         exit(-1);
     }
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
+    glfwSetWindowUserPointer(window, this);
 
     // Load GLAD
     // ---------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD\n";
         glfwTerminate();
         exit(-1);
@@ -52,7 +52,6 @@ Application::Application(const std::string &title, const int width, const int he
 }
 
 Application::~Application() {
-
     glfwDestroyWindow(window);
     glfwTerminate();
 }
@@ -65,33 +64,31 @@ void Application::setTitle(const std::string &title) {
 }
 
 void Application::setWidth(const int width) {
-
     glfwSetWindowSize(window, width, height());
 }
 
 int Application::width() {
-
     int width, height;
     glfwGetWindowSize(window, &width, &height);
     return width;
 }
 
 void Application::setHeight(const int height) {
-
     glfwSetWindowSize(window, width(), height);
 }
 
 int Application::height() {
-
     int width, height;
     glfwGetWindowSize(window, &width, &height);
     return height;
 }
 
 void Application::processInput() {
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+}
+
+void Application::framebufferSizeCallback(int width, int height) {
+    glViewport(0, 0, width, height);
 }

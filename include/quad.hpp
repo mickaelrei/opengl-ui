@@ -11,17 +11,11 @@
 class Quad {
 public:
     /// @brief Default constructor
-    Quad();
+    Quad() = default;
 
-    /// @brief Constructor with parameters
-    /// @param pos position
-    /// @param size size
-    /// @param color color
-    Quad(
-        const Dim2 &pos,
-        const Dim2 &size,
-        const glm::vec4 &color = glm::vec4{1.0f}
-    );
+    /// @brief Constructor with window size
+    /// @param windowSize current window size
+    Quad(const glm::vec2 &windowSize);
 
     /// @brief Set new position
     /// @param pos position vector
@@ -76,6 +70,9 @@ public:
     /// @param child new child
     void addChild(const std::shared_ptr<Quad> &child);
 
+    /// @brief Callback for when window is resized
+    void onWindowResize(const glm::vec2 &windowSize);
+
     /// @brief Draws the quad
     /// @param shader shader to use
     /// @param windowSize window size in pixels
@@ -97,7 +94,7 @@ private:
         const glm::mat4 &model
     );
 
-    /// @brief Calculates model matrix based on position, size and rotation
+    /// @brief Calculates model matrix and stores for cached data
     void calculateModelMatrix();
 
     /// @brief Position
@@ -121,6 +118,9 @@ private:
 
     /// @brief Model matrix
     glm::mat4 _modelMatrix = glm::mat4{1.0f};
+
+    /// @brief Last known window size
+    glm::vec2 _lastWindowSize;
 
     /// @brief List of children
     std::vector<std::shared_ptr<Quad>> children;

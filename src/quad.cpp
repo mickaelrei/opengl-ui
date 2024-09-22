@@ -17,14 +17,8 @@ const unsigned int __indices[] = {
     0, 2, 3  // second triangle
 };
 
-Quad::Quad() {}
-
-Quad::Quad(
-    const Dim2 &pos,
-    const Dim2 &size,
-    const glm::vec4 &color
-) : _pos{pos}, _size{size}, _color{color} {
-    calculateModelMatrix();
+Quad::Quad(const glm::vec2 &windowSize) {
+    onWindowResize(windowSize);
 
     // Create vertex objects
     glGenVertexArrays(1, &VAO);
@@ -132,32 +126,14 @@ void Quad::setUniforms(
     const glm::vec2 &windowSize,
     const glm::mat4 &model
 ) {
-    // Get translation based on anchor point
+    // // Get translation based on anchor point
     auto _scaledPos = _pos.toScale(windowSize);
     auto _scaledSize = _size.toScale(windowSize);
-    auto _correctedPos = _scaledPos - _scaledSize * (_anchorPoint * 2.0f - 1.0f);
-
-    _correctedPos = glm::vec2{0.0f};
-    _scaledSize = glm::vec2{0.5f};
-
-    // printf("\n\nsize: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
-    // printf("pos: (%.5f, %.5f)\n", _correctedPos.x, _correctedPos.y);
-
-    // Set model matrix
-    // _modelMatrix = glm::mat4{1.0f};
-    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
-    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_scaledSize.x, _scaledSize.y, 1.0f));
-
-    _modelMatrix = glm::mat4{1.0f};
-    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
-    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_scaledSize.x, _scaledSize.y, 1.0f));
 
     // Set attributes
     shader.setVec4("color", _color);
-    shader.setVec2("pos", _pos.toScale(windowSize));
-    shader.setVec2("size", _size.toScale(windowSize));
+    shader.setVec2("pos", _scaledPos);
+    shader.setVec2("size", _scaledSize);
     shader.setMat4("model", model * _modelMatrix);
 
     // Get border radius in [0-1] scale
@@ -237,10 +213,10 @@ void Quad::setUniforms(
         shader.setVec2("inv2BR", 1.0f / glm::pow(borderBR, glm::vec2{2.0f}));
     }
 
-    shader.setBool("checkTL", false);//checkTL);
-    shader.setBool("checkTR", false);//checkTR);
-    shader.setBool("checkBL", false);//checkBL);
-    shader.setBool("checkBR", false);//checkBR);
+    shader.setBool("checkTL", checkTL);
+    shader.setBool("checkTR", checkTR);
+    shader.setBool("checkBL", checkBL);
+    shader.setBool("checkBR", checkBR);
 
     shader.setVec2("borderTL", borderTL);
     shader.setVec2("borderTR", borderTR);
@@ -248,13 +224,22 @@ void Quad::setUniforms(
     shader.setVec2("borderBR", borderBR);
 }
 
-void Quad::calculateModelMatrix() {
-    // // Get translation based on anchor point
-    // auto _correctedPos = _pos - _size * (_anchorPoint * 2.0f - 1.0f);
+void Quad::onWindowResize(const glm::vec2 &windowSize) {
+    _lastWindowSize = windowSize;
+    calculateModelMatrix();
+}
 
-    // // Set model matrix
-    // _modelMatrix = glm::mat4{1.0f};
-    // _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos.x, _correctedPos.y, 0.0f));
-    // _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
-    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_size.x, _size.y, 1.0f));
+void Quad::calculateModelMatrix() {
+    // Get translation based on anchor point
+    auto _scaledPos = _pos.toScale(_lastWindowSize);
+    auto _scaledSize = _size.toScale(_lastWindowSize);
+    auto _correctedPos = _scaledPos - _scaledSize * (_anchorPoint * 2.0f - 1.0f);
+
+    printf("scaled size: (%.5f, %.5f)\n", _scaledSize.x, _scaledSize.y);
+
+    // Set model matrix
+    _modelMatrix = glm::mat4{1.0f};
+    _modelMatrix = glm::translate(_modelMatrix, glm::vec3(_correctedPos, 0.0f));
+    _modelMatrix = glm::scale(_modelMatrix, glm::vec3(_scaledSize, 1.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, _rotation, glm::vec3{0.0f, 0.0f, 1.0f});
 }
