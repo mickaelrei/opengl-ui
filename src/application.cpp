@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include <glad/glad.h>
+#include "glad/glad.h"
 
 #include "application.hpp"
+#include "debug.hpp"
 
 // Window resize
 static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
@@ -90,5 +91,5 @@ void Application::processInput() {
 }
 
 void Application::framebufferSizeCallback(int width, int height) {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height); glCheckError();
 }

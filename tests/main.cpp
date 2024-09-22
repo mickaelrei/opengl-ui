@@ -8,6 +8,7 @@
 #include "application.hpp"
 #include "shader.hpp"
 #include "quad.hpp"
+#include "debug.hpp"
 
 class App : public Application {
 public:
@@ -58,11 +59,11 @@ void App::start() {
     quad1->setAnchorPoint(glm::vec2{0.0f, 1.0f});
 
     // Set polygon mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); glCheckError();
 
     // Enable alpha blending
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glCheckError();
+    glEnable(GL_BLEND); glCheckError();
 
     // Render loop
     // -----------
@@ -108,8 +109,8 @@ void App::start() {
 
         // Rendering commands
         // ------------------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); glCheckError();
+        glClear(GL_COLOR_BUFFER_BIT); glCheckError();
 
         // Draw quad
         glm::vec2 windowSize{width(), height()};

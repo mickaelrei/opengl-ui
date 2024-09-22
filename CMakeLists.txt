@@ -15,6 +15,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${FLAGS} -g3 -fsanitize=address,undefined")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${FLAGS} -O3")
 
+# Debug option
+option(DEBUG "Enable debug mode" OFF)
+if (DEBUG)
+    message("DEBUG MODE ON")
+    add_definitions(-DDEBUG)
+else()
+    message("DEBUG MODE OFF")
+endif()
+
 # Find packages
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
@@ -31,6 +40,7 @@ set(
 
     ${SOURCE_DIR}/application.cpp
     ${SOURCE_DIR}/border_radius.cpp
+    ${SOURCE_DIR}/debug.cpp
     ${SOURCE_DIR}/dim.cpp
     ${SOURCE_DIR}/quad.cpp
     ${SOURCE_DIR}/shader.cpp

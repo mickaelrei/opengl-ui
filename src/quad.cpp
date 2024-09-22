@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 
 #include "quad.hpp"
+#include "debug.hpp"
 
 // Default vertices for quad
 const float __vertices[] = {
@@ -21,30 +22,31 @@ Quad::Quad(const glm::vec2 &windowSize) {
     onWindowResize(windowSize);
 
     // Create vertex objects
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    glGenVertexArrays(1, &VAO); glCheckError();
+
+    glGenBuffers(1, &VBO); glCheckError();
+    glGenBuffers(1, &EBO); glCheckError();
 
     // Bind the array (VAO) first
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO); glCheckError();
 
     // Then bind and set the buffer (VBO)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(__vertices), __vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); glCheckError();
+    glBufferData(GL_ARRAY_BUFFER, sizeof(__vertices), __vertices, GL_STATIC_DRAW); glCheckError();
 
     // Then bind and set the elements buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(__indices), __indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); glCheckError();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(__indices), __indices, GL_STATIC_DRAW); glCheckError();
 
     // How to interpret the vertex data (layout location on vertex shader)
     // Position attribute
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0); glCheckError();
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0); glCheckError();
 
     // Unbind buffers
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0); glCheckError();
+    glBindBuffer(GL_ARRAY_BUFFER, 0); glCheckError();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); glCheckError();
 }
 
 void Quad::setPosition(const Dim2 &pos) {
@@ -111,9 +113,9 @@ void Quad::draw(
     setUniforms(shader, windowSize, model);
 
     // Draw elements
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    glBindVertexArray(VAO); glCheckError();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); glCheckError();
+    glBindVertexArray(0); glCheckError();
 
     // Draw children
     for (auto &child : children) {
