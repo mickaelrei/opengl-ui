@@ -19,12 +19,12 @@ public:
     /// @return Dim with specified scale and zero pixels
     static Dim fromScale(float scale);
 
-    Dim operator+ (const Dim &d) const;
-    Dim &operator+= (const Dim &d);
+    Dim  operator+  (const Dim &d) const;
+    Dim& operator+= (const Dim &d);
 
-    Dim operator- () const;
-    Dim operator- (const Dim &d) const;
-    Dim &operator-= (const Dim &d);
+    Dim  operator-  () const;
+    Dim  operator-  (const Dim &d) const;
+    Dim& operator-= (const Dim &d);
 
     /// @brief Get pixels
     /// @return pixels
@@ -72,12 +72,12 @@ public:
     /// @return Dim with specified scale dimensions and zero pixels
     static Dim2 fromScale(float x, float y);
 
-    Dim2 operator+ (const Dim2 &d) const;
-    Dim2 &operator+= (const Dim2 &d);
+    Dim2  operator+  (const Dim2& d) const;
+    Dim2& operator+= (const Dim2 &d);
 
-    Dim2 operator- () const;
-    Dim2 operator- (const Dim2 &d) const;
-    Dim2 &operator-= (const Dim2 &d);
+    Dim2  operator-  () const;
+    Dim2  operator-  (const Dim2 &d) const;
+    Dim2& operator-= (const Dim2 &d);
 
     /// @brief Get dimension in x-axis
     /// @return dimension in x-axis

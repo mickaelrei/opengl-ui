@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 
-#include "include/shader.hpp"
-#include "include/border_radius.hpp"
+#include "shader.hpp"
+#include "border_radius.hpp"
 
 /// @brief Class to represent a rectangular UI element
 class Quad {

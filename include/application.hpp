@@ -16,7 +16,7 @@ public:
     ~Application();
 
     /// @brief Starts app
-    void start();
+    virtual void start();
 
     /// @brief Sets window title
     /// @param title new title
@@ -38,10 +38,10 @@ public:
     /// @param height height in pixels
     void setHeight(const int height);
 
-private:
+protected:
     /// @brief Callback for input processing
     /// @param window
-    void processInput();
+    virtual void processInput();
 
     /// @brief GLFW window
     GLFWwindow *window;
