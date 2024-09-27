@@ -72,6 +72,7 @@ target_include_directories(
     PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/external/include
+    ${CMAKE_SOURCE_DIR}/external/include/freetype
 )
 
 # Tests
@@ -96,13 +97,14 @@ target_compile_definitions(main-test PUBLIC PROJECT_ROOT_FOLDER="${CMAKE_SOURCE_
 target_link_directories(
     main-test
     PRIVATE
+    ${CMAKE_SOURCE_DIR}/external/freetype
     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 )
 target_link_libraries(
     main-test
     PRIVATE
     ${OPENGL_UI}
-    ${OPENGL_LIBRARIES} glfw
+    ${OPENGL_LIBRARIES} glfw freetype
 )
 
 # Header files
@@ -112,4 +114,5 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/external/include
+    ${CMAKE_SOURCE_DIR}/external/include/freetype
 )

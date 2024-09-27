@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "freetype/ft2build.h"
+#include FT_FREETYPE_H
+
 #include "glad/glad.h"
 #include "stb/stb_image.h"
 
@@ -56,6 +59,25 @@ void App::start() {
         rootPath + "/resources/shaders/quad_vert_shader.glsl",
         rootPath + "/resources/shaders/quad_tex_frag_shader.glsl"
     };
+
+    // Testing FreeType library
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft)) {
+        std::cout << "FREETYPE: Could not init FreeType Library\n";
+    }
+
+    // Trying to get ttf file to face struct
+    std::string fontPath = rootPath + "/resources/fonts/minecraft.ttf";
+    FT_Face face;
+    FT_Error error = FT_New_Face(ft, fontPath.c_str(), 0, &face);
+    if (error == FT_Err_Unknown_File_Format) {
+        std::cout << "FREETYPE: File format unsupported\n";
+    } else if (error) {
+        std::cout << "FREETYPE: Failed to load font: " << error << "\n";
+    }
+
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
 
     glm::vec2 windowSize{width(), height()};
     auto quad = std::make_shared<Quad>(windowSize);
