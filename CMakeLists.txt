@@ -42,6 +42,7 @@ set(
     ${SOURCE_DIR}/border_radius.cpp
     ${SOURCE_DIR}/debug.cpp
     ${SOURCE_DIR}/dim.cpp
+    ${SOURCE_DIR}/font.cpp
     ${SOURCE_DIR}/quad.cpp
     ${SOURCE_DIR}/shader.cpp
 

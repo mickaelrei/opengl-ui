@@ -129,8 +129,8 @@ void Quad::setUniforms(
     const glm::mat4 &model
 ) {
     // // Get translation based on anchor point
-    auto _scaledPos = _pos.toScale(windowSize);
-    auto _scaledSize = _size.toScale(windowSize);
+    auto _scaledPos = _pos.toPixels(windowSize);
+    auto _scaledSize = _size.toPixels(windowSize);
 
     // Set attributes
     shader.setVec4("color", _color);
@@ -232,8 +232,8 @@ void Quad::onWindowResize(const glm::vec2 &windowSize) {
 
 void Quad::calculateModelMatrix() {
     // Get translation based on anchor point
-    auto _scaledPos = _pos.toScale(_lastWindowSize);
-    auto _scaledSize = _size.toScale(_lastWindowSize);
+    auto _scaledPos = _pos.toPixels(_lastWindowSize);
+    auto _scaledSize = _size.toPixels(_lastWindowSize) * 0.5f;
     auto _correctedPos = _scaledPos - _scaledSize * (_anchorPoint * 2.0f - 1.0f);
 
     // Set model matrix
