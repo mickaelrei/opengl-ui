@@ -36,10 +36,10 @@ struct Character {
     unsigned int textureID;
 
     // Size of glyph in pixels
-    glm::ivec2 size;
+    glm::vec2 size;
 
     // Offset from baseline to top-left of glyph
-    glm::ivec2 bearing;
+    glm::vec2 bearing;
 
     // Horizontal offset to advance to next glyph
     unsigned int advance;
@@ -53,8 +53,8 @@ public:
 
     /// @brief Constructor with TTF file path
     /// @param ttfPath path to font file
-    /// @param fontQuality font quality (texture height in pixels)
-    Font(const std::string &ttfPath, unsigned int fontQuality = 48);
+    /// @param fontHeight font height in pixels
+    Font(const std::string &ttfPath, unsigned int fontHeight = 48);
 
     /// @brief Get character info for a specific char
     /// @param c char
@@ -71,9 +71,30 @@ public:
     /// @return Internal FT_Face
     FT_Face getFreeTypeFace() const;
 
+    /// @brief At which height was this font loaded at
+    /// @return Font height in pixels
+    float fontHeight() const;
+
+    /// @brief Height in pixels of tallest character in this font
+    /// @return Max height in pixels
+    float maxCharHeight() const;
+
+    /// @brief Highest offset below baseline in pixels in this font
+    /// @return Offset in pixels
+    float maxCharUnderflow() const;
+
 private:
     /// @brief FreeType face object
     FT_Face _face;
+
+    /// @brief Font height in pixels
+    float _fontHeight;
+
+    /// @brief Height in pixels of tallest character
+    float _maxCharHeight;
+
+    /// @brief Highest offset below baseline in pixels
+    float _maxCharUnderflow;
 
     /// @brief Array of all printable ASCII characters from 32 to 126
     Character _characters[CHARS_LEN];

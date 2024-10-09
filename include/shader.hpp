@@ -13,8 +13,8 @@
 /// @brief Wrapper class for an OpenGL shader
 class Shader {
 public:
-    /// @brief OpenGL identifier
-    unsigned int id;
+    /// @brief Default constructor
+    Shader() = default;
 
     /// @brief Constructor with file paths
     /// @param vertexPath path to vertex shader
@@ -61,4 +61,7 @@ public:
     /// @param name uniform name
     /// @param value mat4
     void setMat4(const std::string &name, const glm::mat4 &value) const;
+
+    /// @brief OpenGL identifier
+    unsigned int id;
 };

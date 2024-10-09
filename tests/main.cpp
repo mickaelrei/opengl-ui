@@ -20,14 +20,23 @@
 
 class App : public Application {
 public:
-    App(std::string text = "");
+    App() = default;
 
     void start() override;
     void framebufferSizeCallback(int width, int height) override;
 
+    void renderText(
+        const std::string &text,
+        const glm::vec2 &baseline,
+        float scale,
+        const glm::vec4 &color = glm::vec4{1.0f}
+    );
+
     std::vector<std::shared_ptr<Quad>> quads;
 
-    std::string text;
+    Font font;
+    Shader textShader;
+    unsigned int textVAO;
 };
 
 void App::framebufferSizeCallback(int width, int height) {
@@ -39,10 +48,61 @@ void App::framebufferSizeCallback(int width, int height) {
     }
 }
 
-App::App(std::string text) : text{text} {
-    if (App::text.empty()) {
-        App::text = "Hello world!";
+void App::renderText(
+    const std::string &text,
+    const glm::vec2 &baseline,
+    float scale,
+    const glm::vec4 &color
+) {
+    // Get projection
+    auto projection = glm::ortho(0.0f, (float)width(), (float)height(), 0.0f, 0.0f, 1.0f);
+    glm::mat4 model{1.0f};
+
+    // Set base uniforms
+    textShader.setMat4("projection", projection);
+    textShader.setVec4("color", color);
+    textShader.setInt("tex", 0);
+
+    // Base GL bindings
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(textVAO); glCheckError();
+
+    // Keep track of current render position
+    const float fontOffsetY = font.maxCharHeight() - font.maxCharUnderflow();
+    float x = baseline.x;
+    float y = baseline.y;
+
+    for (const auto c : text) {
+        auto charData = font.getCharInfo(c);
+
+        // Skip space char
+        if (c == ' ') {
+            x += (charData.advance >> 6) * scale;
+            continue;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, charData.textureID);
+
+        // Calculate offset
+        float xpos = x + charData.bearing.x * scale;
+        float ypos = y + (fontOffsetY - charData.bearing.y) * scale;
+
+
+        // Calculate new model matrix
+        model = glm::mat4{1.0f};
+        model = glm::translate(model, glm::vec3{xpos, ypos, 0.0f});
+        model = glm::scale(model, glm::vec3{charData.size * scale, 1.0f});
+
+        // Change render position
+        // x += charData.advance;
+        x += (charData.advance >> 6) * scale;
+
+        textShader.setMat4("model", model);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); glCheckError();
     }
+
+    // Unbind text VAO
+    glBindVertexArray(0); glCheckError();
 }
 
 void App::start() {
@@ -52,12 +112,12 @@ void App::start() {
         throw std::runtime_error{"Failed to initialize fonts"};
     }
 
-    Shader textShader{
+    textShader = Shader{
         rootPath + "/resources/shaders/text.vs",
         rootPath + "/resources/shaders/text.fs"
     };
 
-    Font minecraftFont{rootPath + "/resources/fonts/minecraft.ttf"};
+    font = Font{rootPath + "/resources/fonts/minecraft.ttf"};
 
     // Set polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); glCheckError();
@@ -67,15 +127,15 @@ void App::start() {
     glEnable(GL_BLEND); glCheckError();
 
     // Text quad data
-    unsigned int textVAO, textVBO, textEBO;
+    unsigned int textVBO, textEBO;
     {
         // Default vertices for quad
         const float __vertices[] = {
             // positions
-            -1.0f, -1.0f, // bottom left
-            -1.0f,  1.0f, // top left
-            1.0f,  1.0f, // top right
-            1.0f, -1.0f, // bottom right
+            0.0f, 0.0f, // bottom left
+            0.0f, 1.0f, // top left
+            1.0f, 1.0f, // top right
+            1.0f, 0.0f, // bottom right
         };
 
         // Default indices for quad
@@ -130,27 +190,16 @@ void App::start() {
         sstr << "Rounded Quads | " << (int)(1 / dt) << " fps";
         setTitle(sstr.str().c_str());
 
-        glm::mat4 projection = glm::ortho(0.0f, (float)width(), (float)height(), 0.0f, 0.0f, 1.0f);
-        glm::mat4 model{1.0f};
-        model = glm::translate(model, glm::vec3{300.0f, 300.0f, 0.0f});
-        model = glm::scale(model, glm::vec3{50.0f});
-
         // Rendering commands
         // ------------------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f); glCheckError();
         glClear(GL_COLOR_BUFFER_BIT); glCheckError();
 
-        auto charA = minecraftFont.getCharInfo('b');
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, charA.textureID);
+        char i = ' ' + (int)(now * 5.0f) % 95;
+        std::string str{i};
 
-        textShader.setInt("tex", 0);
-        textShader.setMat4("projection", projection);
-        textShader.setMat4("model", model);
-        textShader.setVec4("color", glm::vec4{1.0f});
-        glBindVertexArray(textVAO); glCheckError();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); glCheckError();
-        glBindVertexArray(0); glCheckError();
+        renderText(str, glm::vec2{5.0f, 5.0f}, 1.0f);
+        renderText("Testing strings", glm::vec2{5.0f, (float)height() - font.maxCharHeight() - 5.0f}, 1.0f);
 
         // Swap buffers and poll events
         // ----------------------------
@@ -161,10 +210,7 @@ void App::start() {
     terminateFonts();
 }
 
-int main(int argc, char **argv) {
-    std::string text;
-    if (argc == 2)
-        text = argv[1];
-    auto app = std::make_shared<App>(text);
+int main() {
+    auto app = std::make_shared<App>();
     app->start();
 }

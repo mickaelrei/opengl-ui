@@ -48,7 +48,8 @@ void terminateFonts() {
     }
 }
 
-Font::Font(const std::string &ttfPath, unsigned int fontQuality) {
+Font::Font(const std::string &ttfPath, unsigned int fontHeight)
+  : _fontHeight{(float)fontHeight} {
     // Check if font is already loaded
     auto it = loadedFonts.find(ttfPath);
     if (it != loadedFonts.end()) {
@@ -72,7 +73,9 @@ Font::Font(const std::string &ttfPath, unsigned int fontQuality) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); glCheckError();
 
     // Generate characters from 32 to 126
-    FT_Set_Pixel_Sizes(_face, 0, fontQuality);
+    FT_Set_Pixel_Sizes(_face, 0, fontHeight);
+    _maxCharHeight = 0.0f;
+    _maxCharUnderflow = 0.0f;
     for (int i = 0; i < CHARS_LEN; ++i) {
         // Attempt to load char
         FT_Error err = FT_Load_Char(_face, CHARS_START + i, FT_LOAD_RENDER);
@@ -107,12 +110,15 @@ Font::Font(const std::string &ttfPath, unsigned int fontQuality) {
         // Create character struct from glyph data
         Character character = {
             texture, 
-            glm::ivec2{_face->glyph->bitmap.width, _face->glyph->bitmap.rows},
-            glm::ivec2{_face->glyph->bitmap_left, _face->glyph->bitmap_top},
-            (unsigned int)_face->glyph->advance.x >> 6
+            glm::vec2{_face->glyph->bitmap.width, _face->glyph->bitmap.rows},
+            glm::vec2{_face->glyph->bitmap_left, _face->glyph->bitmap_top},
+            _face->glyph->advance.x
         };
-
         _characters[i] = character;
+
+        // Update font info
+        _maxCharUnderflow = std::max(_maxCharUnderflow, character.size.y - character.bearing.y);
+        _maxCharHeight = std::max(_maxCharHeight, character.size.y);
     }
 
     // Go back to original byte-alignment
@@ -142,4 +148,16 @@ unsigned int Font::calculateTextWidth(const std::string &text, unsigned int font
 
 FT_Face Font::getFreeTypeFace() const {
     return _face;
+}
+
+float Font::fontHeight() const {
+    return _fontHeight;
+}
+
+float Font::maxCharHeight() const {
+    return _maxCharHeight;
+}
+
+float Font::maxCharUnderflow() const {
+    return _maxCharUnderflow;
 }
