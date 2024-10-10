@@ -112,7 +112,7 @@ Font::Font(const std::string &ttfPath, unsigned int fontHeight)
             texture, 
             glm::vec2{_face->glyph->bitmap.width, _face->glyph->bitmap.rows},
             glm::vec2{_face->glyph->bitmap_left, _face->glyph->bitmap_top},
-            _face->glyph->advance.x
+            (unsigned int)_face->glyph->advance.x >> 6
         };
         _characters[i] = character;
 

@@ -20,7 +20,7 @@
 
 class App : public Application {
 public:
-    App() = default;
+    App();
 
     void start() override;
     void framebufferSizeCallback(int width, int height) override;
@@ -28,7 +28,8 @@ public:
     void renderText(
         const std::string &text,
         const glm::vec2 &baseline,
-        float scale,
+        float fontSize = 14.0f,
+        float lineHeight = 1.2f,
         const glm::vec4 &color = glm::vec4{1.0f}
     );
 
@@ -38,6 +39,8 @@ public:
     Shader textShader;
     unsigned int textVAO;
 };
+
+App::App() : Application::Application{"Rounded Quads", 1250, 700} {}
 
 void App::framebufferSizeCallback(int width, int height) {
     Application::framebufferSizeCallback(width, height);
@@ -51,7 +54,8 @@ void App::framebufferSizeCallback(int width, int height) {
 void App::renderText(
     const std::string &text,
     const glm::vec2 &baseline,
-    float scale,
+    float fontSize,
+    float lineHeight,
     const glm::vec4 &color
 ) {
     // Get projection
@@ -67,6 +71,9 @@ void App::renderText(
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(textVAO); glCheckError();
 
+    // Calculate font scale based on given font size and font loaded height
+    float scale = fontSize / font.fontHeight();
+
     // Keep track of current render position
     const float fontOffsetY = font.maxCharHeight() - font.maxCharUnderflow();
     float x = baseline.x;
@@ -77,7 +84,7 @@ void App::renderText(
 
         // Skip space char
         if (c == ' ') {
-            x += (charData.advance >> 6) * scale;
+            x += charData.advance * scale;
             continue;
         }
 
@@ -94,8 +101,7 @@ void App::renderText(
         model = glm::scale(model, glm::vec3{charData.size * scale, 1.0f});
 
         // Change render position
-        // x += charData.advance;
-        x += (charData.advance >> 6) * scale;
+        x += charData.advance * scale;
 
         textShader.setMat4("model", model);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); glCheckError();
@@ -117,7 +123,7 @@ void App::start() {
         rootPath + "/resources/shaders/text.fs"
     };
 
-    font = Font{rootPath + "/resources/fonts/minecraft.ttf"};
+    font = Font{rootPath + "/resources/fonts/roboto.ttf"};
 
     // Set polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); glCheckError();
@@ -198,8 +204,26 @@ void App::start() {
         char i = ' ' + (int)(now * 5.0f) % 95;
         std::string str{i};
 
-        renderText(str, glm::vec2{5.0f, 5.0f}, 1.0f);
-        renderText("Testing strings", glm::vec2{5.0f, (float)height() - font.maxCharHeight() - 5.0f}, 1.0f);
+        double mx, my;
+        glfwGetCursorPos(window, &mx, &my);
+        glm::vec2 mouseOffset{mx, my};
+
+        float lineHeight = 1.1f;
+        renderText(
+            "This is a paragraph with a standard line-height.",
+            mouseOffset + glm::vec2{5.0f, 5.0f},
+            38.0f
+        );
+        renderText(
+            "The standard line height is 110% to 120%",
+            mouseOffset + glm::vec2{5.0f, 5.0f + lineHeight * 38},
+            25.0f + my * 0.125f
+        );
+        renderText(
+            "Testing strings",
+            mouseOffset + glm::vec2{5.0f, (float)height() - 38.0f - 5.0f},
+            38.0f
+        );
 
         // Swap buffers and poll events
         // ----------------------------
