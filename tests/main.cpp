@@ -40,7 +40,7 @@ public:
     unsigned int textVAO;
 };
 
-App::App() : Application::Application{"Rounded Quads", 1250, 700} {}
+App::App() : Application::Application{"Rounded Quads", 300, 700} {}
 
 void App::framebufferSizeCallback(int width, int height) {
     Application::framebufferSizeCallback(width, height);
@@ -74,19 +74,53 @@ void App::renderText(
     // Calculate font scale based on given font size and font loaded height
     float scale = fontSize / font.fontHeight();
 
+    const float renderWidth = (float)width() - 5.0f;
+
     // Keep track of current render position
     const float fontOffsetY = font.maxCharHeight() - font.maxCharUnderflow();
     float x = baseline.x;
     float y = baseline.y;
 
-    for (const auto c : text) {
+    bool startOfWord = true;
+    const size_t textSize = text.size();
+    for (size_t i = 0; i < textSize; ++i) {
+        char c = text[i];
         auto charData = font.getCharInfo(c);
 
         // Skip space char
         if (c == ' ') {
             x += charData.advance * scale;
+            startOfWord = true;
             continue;
         }
+
+        // Check if next word overflows width
+        if (startOfWord && i != 0) {
+            // Find next space
+            size_t idx = text.find(' ', i);
+
+            // If not found, use end of string
+            if (idx == -1UL) {
+                idx = textSize;
+            }
+            auto word = text.substr(i, idx - i);
+
+            // Found next space, check if word is too large
+            float textWidth = font.calculateTextWidth(word, fontSize);
+            if (-baseline.x + x + textWidth > renderWidth) {
+                // Skip line and reset x
+                x = baseline.x;
+                y += fontSize * lineHeight;
+            }
+        } else if (i != 0 && -baseline.x + x + charData.advance * scale > renderWidth) {
+            // If not start of word, only skip line if current character overflows width
+            x = baseline.x;
+            y += fontSize * lineHeight;
+        }
+
+        // Reset word flag
+        startOfWord = false;
+
 
         glBindTexture(GL_TEXTURE_2D, charData.textureID);
 
@@ -191,6 +225,13 @@ void App::start() {
         // -----
         processInput();
 
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            setWidth(width() - 1);
+        }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            setWidth(width() + 1);
+        }
+
         // Update title
         std::stringstream sstr;
         sstr << "Rounded Quads | " << (int)(1 / dt) << " fps";
@@ -206,18 +247,13 @@ void App::start() {
 
         double mx, my;
         glfwGetCursorPos(window, &mx, &my);
-        glm::vec2 mouseOffset{mx, my};
+        glm::vec2 mouseOffset{0.0f, 0.0f};//{mx, my};
 
-        float lineHeight = 1.1f;
         renderText(
-            "This is a paragraph with a standard line-height.",
+            // "This is a paragraph with a standard line-height. Thisisaverylongword",
+            "Most words are short & don't need to break. But Antidisestablishmentarianism is long. The width is set to min-content, with a max-width of 11em. ",
             mouseOffset + glm::vec2{5.0f, 5.0f},
             38.0f
-        );
-        renderText(
-            "The standard line height is 110% to 120%",
-            mouseOffset + glm::vec2{5.0f, 5.0f + lineHeight * 38},
-            25.0f + my * 0.125f
         );
         renderText(
             "Testing strings",

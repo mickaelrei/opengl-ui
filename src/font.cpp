@@ -48,7 +48,7 @@ void terminateFonts() {
     }
 }
 
-Font::Font(const std::string &ttfPath, unsigned int fontHeight)
+Font::Font(const std::string &ttfPath, float fontHeight)
   : _fontHeight{(float)fontHeight} {
     // Check if font is already loaded
     auto it = loadedFonts.find(ttfPath);
@@ -112,7 +112,7 @@ Font::Font(const std::string &ttfPath, unsigned int fontHeight)
             texture, 
             glm::vec2{_face->glyph->bitmap.width, _face->glyph->bitmap.rows},
             glm::vec2{_face->glyph->bitmap_left, _face->glyph->bitmap_top},
-            (unsigned int)_face->glyph->advance.x >> 6
+            (float)(_face->glyph->advance.x >> 6)
         };
         _characters[i] = character;
 
@@ -135,13 +135,13 @@ Character Font::getCharInfo(char c) {
     return _characters[c - 32];
 }
 
-unsigned int Font::calculateTextWidth(const std::string &text, unsigned int fontSize) {
-    // TODO: Calculate scale based on fontSize and Font::fontQuality
-    (void)fontSize;
+float Font::calculateTextWidth(const std::string &text, float fontSize) {
+    const float scale = fontSize / fontHeight();
+    const float textSize = text.size();
 
-    unsigned int width = 0;
-    for (auto c = text.begin(); c != text.end(); ++c) {
-        width += getCharInfo(*c).advance;
+    float width = 0;
+    for (size_t i = 0; i < textSize; ++i) {
+        width += getCharInfo(text[i]).advance * scale;
     }
     return width;
 }

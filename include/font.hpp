@@ -42,7 +42,7 @@ struct Character {
     glm::vec2 bearing;
 
     // Horizontal offset to advance to next glyph
-    unsigned int advance;
+    float advance;
 };
 
 /// @brief Class to hold 
@@ -54,7 +54,7 @@ public:
     /// @brief Constructor with TTF file path
     /// @param ttfPath path to font file
     /// @param fontHeight font height in pixels
-    Font(const std::string &ttfPath, unsigned int fontHeight = 48);
+    Font(const std::string &ttfPath, float fontHeight = 48.0f);
 
     /// @brief Get character info for a specific char
     /// @param c char
@@ -65,7 +65,7 @@ public:
     /// @param text text to calculate width
     /// @param fontSize font size in pixels
     /// @return text width in pixels
-    unsigned int calculateTextWidth(const std::string &text, unsigned int fontSize = 14);
+    float calculateTextWidth(const std::string &text, float fontSize = 14.0f);
 
     /// @brief Returns internal FreeType Face pointer
     /// @return Internal FT_Face
