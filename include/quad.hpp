@@ -7,6 +7,24 @@
 #include "border_radius.hpp"
 #include "dim.hpp"
 
+/// @brief Namespace for quad module
+namespace QuadModule {
+
+/// @brief Attempts to initialize resources related to quad rendering
+/// @param rootPath path to project root
+/// @param windowSize initial window size
+/// @return whether was successful or not
+bool init(const std::string &rootPath, const glm::vec2 &windowSize);
+
+/// @brief Terminates/frees resources related to quad rendering
+void terminate();
+
+/// @brief Callback for window resize
+/// @param windowSize new window size in pixels
+void onWindowResize(const glm::vec2 &windowSize);
+
+} // QuadModule
+
 /// @brief Class to represent a rectangular UI element
 class Quad {
 public:
@@ -74,22 +92,18 @@ public:
     void onWindowResize(const glm::vec2 &windowSize);
 
     /// @brief Draws the quad
-    /// @param shader shader to use
     /// @param windowSize window size in pixels
     /// @param model model matrix, used in recursive children rendering
     void draw(
-        const Shader &shader,
         const glm::vec2 &windowSize,
         const glm::mat4 &model = glm::mat4{1.0f}
     );
 
 private:
     /// @brief Sets needed uniforms on shader to draw the quad
-    /// @param shader shader to use
     /// @param windowSize window size in pixels
     /// @param model model matrix
     void setUniforms(
-        const Shader &shader,
         const glm::vec2 &windowSize,
         const glm::mat4 &model
     );
@@ -124,13 +138,4 @@ private:
 
     /// @brief List of children
     std::vector<std::shared_ptr<Quad>> children;
-
-    /// @brief OpenGL vertex array
-    unsigned int VAO;
-
-    /// @brief OpenGL vertex buffer
-    unsigned int VBO;
-
-    /// @brief OpenGL element buffer
-    unsigned int EBO;
 };

@@ -3,39 +3,63 @@
 #include "quad.hpp"
 #include "debug.hpp"
 
-// Default vertices for quad
-const float __vertices[] = {
-    // positions
-    -1.0f, -1.0f, // bottom left
-    -1.0f,  1.0f, // top left
-     1.0f,  1.0f, // top right
-     1.0f, -1.0f, // bottom right
-};
+/// @brief Shader used to render quads
+static Shader quadShader;
 
-// Default indices for quad
-const unsigned int __indices[] = {
-    0, 1, 2, // first triangle
-    0, 2, 3  // second triangle
-};
+/// @brief OpenGL objects for quad rendering
+static unsigned int quadVAO, quadVBO, quadEBO;
 
-Quad::Quad(const glm::vec2 &windowSize) {
+/// @brief Whether quad resources are already initialized
+static bool initialized = false;
+
+namespace QuadModule {
+
+bool init(const std::string &rootPath, const glm::vec2 &windowSize) {
+    if (initialized) return true;
+    initialized = true;
+
+
+    // Initialize shader and set initial uniforms
+    // ------------------------------------------
+    quadShader = Shader{
+        rootPath + "/resources/shaders/quad.vs",
+        rootPath + "/resources/shaders/quad.fs"
+    };
     onWindowResize(windowSize);
 
-    // Create vertex objects
-    glGenVertexArrays(1, &VAO); glCheckError();
+    // Construct VAO for text rendering
+    // --------------------------------
 
-    glGenBuffers(1, &VBO); glCheckError();
-    glGenBuffers(1, &EBO); glCheckError();
+    // Default vertices for quad
+    const float __vertices[] = {
+        // positions
+        -1.0f, -1.0f, // bottom left
+        -1.0f,  1.0f, // top left
+        1.0f,  1.0f, // top right
+        1.0f, -1.0f, // bottom right
+    };
+
+    // Default indices for quad
+    const unsigned int __indices[] = {
+        0, 1, 2, // first triangle
+        0, 2, 3  // second triangle
+    };
+
+    // Create vertex objects
+    glGenVertexArrays(1, &quadVAO); glCheckError();
+
+    glGenBuffers(1, &quadVBO); glCheckError();
+    glGenBuffers(1, &quadEBO); glCheckError();
 
     // Bind the array (VAO) first
-    glBindVertexArray(VAO); glCheckError();
+    glBindVertexArray(quadVAO); glCheckError();
 
     // Then bind and set the buffer (VBO)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); glCheckError();
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO); glCheckError();
     glBufferData(GL_ARRAY_BUFFER, sizeof(__vertices), __vertices, GL_STATIC_DRAW); glCheckError();
 
     // Then bind and set the elements buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO); glCheckError();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO); glCheckError();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(__indices), __indices, GL_STATIC_DRAW); glCheckError();
 
     // How to interpret the vertex data (layout location on vertex shader)
@@ -47,6 +71,41 @@ Quad::Quad(const glm::vec2 &windowSize) {
     glBindVertexArray(0); glCheckError();
     glBindBuffer(GL_ARRAY_BUFFER, 0); glCheckError();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); glCheckError();
+
+    // Adding an empty string at the end to suppress compiler warning
+    debugPrint("Quad module successfully loaded\n%s", "");
+    return true;
+}
+
+void terminate() {
+    if (!initialized) return;
+    initialized = false;
+
+    quadShader.destroy();
+    glDeleteBuffers(1, &quadVBO); glCheckError();
+    glDeleteBuffers(1, &quadEBO); glCheckError();
+    glDeleteVertexArrays(1, &quadVAO); glCheckError();
+}
+
+void onWindowResize(const glm::vec2 &windowSize) {
+    if (!initialized) return;
+
+    quadShader.setMat4("projection", glm::ortho(
+        // left-right
+        0.0f, windowSize.x,
+
+        // top-bottom
+        windowSize.y, 0.0f,
+
+        // near-far
+        0.0f, 1.0f
+    ));
+}
+
+}
+
+Quad::Quad(const glm::vec2 &windowSize) {
+    onWindowResize(windowSize);
 }
 
 void Quad::setPosition(const Dim2 &pos) {
@@ -106,37 +165,31 @@ void Quad::addChild(const std::shared_ptr<Quad> &child) {
 }
 
 void Quad::draw(
-    const Shader &shader,
     const glm::vec2 &windowSize,
     const glm::mat4 &model
 ) {
-    setUniforms(shader, windowSize, model);
+    setUniforms(windowSize, model);
 
     // Draw elements
-    glBindVertexArray(VAO); glCheckError();
+    glBindVertexArray(quadVAO); glCheckError();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); glCheckError();
     glBindVertexArray(0); glCheckError();
 
     // Draw children
     for (auto &child : children) {
-        child->draw(shader, windowSize, model * _modelMatrix);
+        child->draw(windowSize, model * _modelMatrix);
     }
+
+    glBindVertexArray(0); glCheckError();
 }
 
 void Quad::setUniforms(
-    const Shader &shader,
     const glm::vec2 &windowSize,
     const glm::mat4 &model
 ) {
-    // // Get translation based on anchor point
-    auto _scaledPos = _pos.toPixels(windowSize);
-    auto _scaledSize = _size.toPixels(windowSize);
-
     // Set attributes
-    shader.setVec4("color", _color);
-    shader.setVec2("pos", _scaledPos);
-    shader.setVec2("size", _scaledSize);
-    shader.setMat4("model", model * _modelMatrix);
+    quadShader.setVec4("color", _color);
+    quadShader.setMat4("model", model * _modelMatrix);
 
     // Get border radius in [0-1] scale
     glm::vec2 quadPixelsSize = _size.toPixels(windowSize);
@@ -199,30 +252,30 @@ void Quad::setUniforms(
 
     if (borderTL.x * borderTL.y > 0) {
         checkTL = true;
-        shader.setVec2("inv2TL", 1.0f / glm::pow(borderTL, glm::vec2{2.0f}));
+        quadShader.setVec2("inv2TL", 1.0f / glm::pow(borderTL, glm::vec2{2.0f}));
     }
     if (borderTR.x * borderTR.y > 0) {
         checkTR = true;
-        shader.setVec2("inv2TR", 1.0f / glm::pow(borderTR, glm::vec2{2.0f}));
+        quadShader.setVec2("inv2TR", 1.0f / glm::pow(borderTR, glm::vec2{2.0f}));
     }
     if (borderBL.x * borderBL.y > 0) {
         checkBL = true;
-        shader.setVec2("inv2BL", 1.0f / glm::pow(borderBL, glm::vec2{2.0f}));
+        quadShader.setVec2("inv2BL", 1.0f / glm::pow(borderBL, glm::vec2{2.0f}));
     }
     if (borderBR.x * borderBR.y > 0) {
         checkBR = true;
-        shader.setVec2("inv2BR", 1.0f / glm::pow(borderBR, glm::vec2{2.0f}));
+        quadShader.setVec2("inv2BR", 1.0f / glm::pow(borderBR, glm::vec2{2.0f}));
     }
 
-    shader.setBool("checkTL", checkTL);
-    shader.setBool("checkTR", checkTR);
-    shader.setBool("checkBL", checkBL);
-    shader.setBool("checkBR", checkBR);
+    quadShader.setBool("checkTL", checkTL);
+    quadShader.setBool("checkTR", checkTR);
+    quadShader.setBool("checkBL", checkBL);
+    quadShader.setBool("checkBR", checkBR);
 
-    shader.setVec2("borderTL", borderTL);
-    shader.setVec2("borderTR", borderTR);
-    shader.setVec2("borderBL", borderBL);
-    shader.setVec2("borderBR", borderBR);
+    quadShader.setVec2("borderTL", borderTL);
+    quadShader.setVec2("borderTR", borderTR);
+    quadShader.setVec2("borderBL", borderBL);
+    quadShader.setVec2("borderBR", borderBR);
 }
 
 void Quad::onWindowResize(const glm::vec2 &windowSize) {

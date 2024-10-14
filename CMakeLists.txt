@@ -45,6 +45,7 @@ set(
     ${SOURCE_DIR}/font.cpp
     ${SOURCE_DIR}/quad.cpp
     ${SOURCE_DIR}/shader.cpp
+    ${SOURCE_DIR}/text.cpp
 
     # External resources
     ${CMAKE_SOURCE_DIR}/external/glad/glad.c

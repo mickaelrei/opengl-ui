@@ -3,6 +3,9 @@
 #include "glad/glad.h"
 
 #include "application.hpp"
+#include "font.hpp"
+#include "quad.hpp"
+#include "text.hpp"
 #include "debug.hpp"
 
 // Window resize
@@ -17,9 +20,12 @@ static void glfwErrorCallback(int errorCode, const char* description) {
     std::cerr << "Description: " << description << "\n";
 }
 
-Application::Application() : Application{"", 600, 600} {}
-
-Application::Application(const std::string &title, const int width, const int height)
+Application::Application(
+    const std::string &rootPath,
+    const std::string &title,
+    int width,
+    int height
+)
     : title{title} {
     glfwSetErrorCallback(glfwErrorCallback);
 
@@ -36,7 +42,7 @@ Application::Application(const std::string &title, const int width, const int he
     if (window == NULL) {
         std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
-        exit(-1);
+        exit(1);
     }
 
     glfwMakeContextCurrent(window);
@@ -48,11 +54,33 @@ Application::Application(const std::string &title, const int width, const int he
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD\n";
         glfwTerminate();
-        exit(-1);
+        exit(1);
+    }
+
+    // Init modules
+    // ------------
+    glm::vec2 windowSize{(float)width, (float)height};
+    if (!FontModule::init(rootPath)) {
+        std::cout << "Failed to initialize font module\n";
+        exit(1);
+    }
+
+    if (!TextModule::init(rootPath, windowSize)) {
+        std::cout << "Failed to initialize text module\n";
+        exit(1);
+    }
+
+    if (!QuadModule::init(rootPath, windowSize)) {
+        std::cout << "Failed to initialize quad module\n";
+        exit(1);
     }
 }
 
 Application::~Application() {
+    FontModule::terminate();
+    TextModule::terminate();
+    QuadModule::terminate();
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }
@@ -92,4 +120,9 @@ void Application::processInput() {
 
 void Application::framebufferSizeCallback(int width, int height) {
     glViewport(0, 0, width, height); glCheckError();
+
+    // Call modules window resize callback
+    glm::vec2 windowSize{(float)width, (float)height};
+    TextModule::onWindowResize(windowSize);
+    QuadModule::onWindowResize(windowSize);
 }

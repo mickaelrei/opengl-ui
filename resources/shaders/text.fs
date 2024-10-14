@@ -1,19 +1,19 @@
 #version 330 core
 
+// Output color
 out vec4 fragColor;
 
-uniform sampler2D tex;
+// Character texture
+uniform sampler2D charTexture;
 
+// Character color
 uniform vec4 color;
 
 // Frag pos
 in vec2 fragPos;
 
 void main() {
-	// Correct to [0, 1] range
-	vec2 uv = fragPos;
-
-	float texAlpha = texture(tex, uv).r;
+	float texAlpha = texture(charTexture, fragPos).r;
 	if (texAlpha < 0.1f) discard;
 
 	float alpha = color.a * texAlpha;

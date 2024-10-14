@@ -9,32 +9,62 @@
 #include "font.hpp"
 
 /// @brief Global pointer to FreeType library object
-FT_Library ft;
+static FT_Library ft;
 
 /// @brief Map of currenty loaded fonts
-std::unordered_map<std::string, Font> loadedFonts;
+static std::unordered_map<std::string, Font> loadedFonts;
 
-void FT_Check_Error(const std::string &prefix, FT_Error code) {
+/// @brief Whether font resources are already initialized
+static bool initialized = false;
+
+/// @brief Project root path
+static std::string _rootPath = "";
+
+const char *FT_Error_String(FT_Error error) {
+    #undef FTERRORS_H_
+    #define FT_ERROR_START_LIST     switch(error) {
+    #define FT_ERRORDEF(e, v, s)    case e:\
+                                        return s;
+    #define FT_ERROR_END_LIST       default:\
+                                        return "Unknown error"; \
+                                    }
+    #include "freetype/fterrors.h"
+}
+
+void FT_CheckError(const std::string &prefix, FT_Error code) {
     auto str = FT_Error_String(code);
     debugPrint("[FREETYPE] %s: %s\n", prefix.c_str(), str);
 }
 
-bool initFonts() {
+namespace FontModule {
+
+bool init(const std::string &rootPath) {
+    if (initialized) return true;
+    initialized = true;
+
+    _rootPath = rootPath;
+
     FT_Error error = FT_Init_FreeType(&ft);
     if (error != 0) {
-        FT_Check_Error("FT_Init_FreeType", error);
+        FT_CheckError("FT_Init_FreeType", error);
         return false;
     }
+
+    // Adding an empty string at the end to suppress compiler warning
+    debugPrint("Font module successfully loaded\n%s", "");
     return true;
 }
 
-void terminateFonts() {
+void terminate() {
+    if (!initialized) return;
+    initialized = false;
+
     // Free loaded fonts
     for (auto &[ttfPath, font] : loadedFonts) {
         debugPrint("Freeing font at path %s\n", ttfPath.c_str());
 
         FT_Error err = FT_Done_Face(font.getFreeTypeFace());
-        if (err != 0) FT_Check_Error("FT_Done_Face", err);
+        if (err != 0) FT_CheckError("FT_Done_Face", err);
         for (int i = 0; i < CHARS_LEN; ++i) {
             auto textureID = font.getCharInfo(i).textureID;
             glDeleteTextures(1, &textureID);
@@ -44,8 +74,10 @@ void terminateFonts() {
     // Free resources on FreeType library
     if (ft != nullptr) {
         FT_Error err = FT_Done_FreeType(ft);
-        if (err != 0) FT_Check_Error("FT_Done_Face", err);
+        if (err != 0) FT_CheckError("FT_Done_Face", err);
     }
+}
+
 }
 
 Font::Font(const std::string &ttfPath, float fontHeight)
@@ -63,7 +95,7 @@ Font::Font(const std::string &ttfPath, float fontHeight)
     debugPrint("Font at path %s not loaded yet, loading resources\n", ttfPath.c_str());
 
     // Trying to get ttf file to face struct
-    FT_Error err = FT_New_Face(ft, ttfPath.c_str(), 0, &_face);
+    FT_Error err = FT_New_Face(ft, (_rootPath + "/" + ttfPath).c_str(), 0, &_face);
     if (err != 0) {
         throw std::runtime_error{FT_Error_String(err)};
     }
@@ -81,7 +113,7 @@ Font::Font(const std::string &ttfPath, float fontHeight)
         FT_Error err = FT_Load_Char(_face, CHARS_START + i, FT_LOAD_RENDER);
         if (err != 0) {
             debugPrint("FREETYPE: Failed to load char %c\n", i);
-            FT_Check_Error("FT_Load_Char", err);
+            FT_CheckError("FT_Load_Char", err);
             continue;
         }
 
@@ -109,7 +141,7 @@ Font::Font(const std::string &ttfPath, float fontHeight)
 
         // Create character struct from glyph data
         Character character = {
-            texture, 
+            texture,
             glm::vec2{_face->glyph->bitmap.width, _face->glyph->bitmap.rows},
             glm::vec2{_face->glyph->bitmap_left, _face->glyph->bitmap_top},
             (float)(_face->glyph->advance.x >> 6)

@@ -1,12 +1,9 @@
 #version 330 core
 
-#define ALPHA_OFFSET 0.005f
-
+// Output color
 out vec4 fragColor;
 
 // Quad data
-uniform vec2 pos;
-uniform vec2 size;
 uniform vec4 color;
 
 uniform bool checkTL;
@@ -30,6 +27,10 @@ in vec2 fragPos;
 void main() {
 	// Correct to [0, 1] range
 	vec2 uv = fragPos * 0.5f + 0.5f;
+	// Shader is rendered from bottom-left to top-right,
+	// but engine renders from top-left to bottom-right,
+	// so we need to flip the Y component
+	uv.y = 1.0f - uv.y;
 
 	// Variables for corner check
 	bool isCorner = false;

@@ -7,10 +7,20 @@
 /// @brief Class to handle an application
 class Application {
 public:
-    Application();
+    /// @brief Default constructor
+    Application() = default;
 
     /// @brief Constructor
-    Application(const std::string &title, const int width, const int height);
+    /// @param title window title
+    /// @param width window initial width
+    /// @param width window initial height
+    /// @param rootPath project root path
+    Application(
+        const std::string &rootPath,
+        const std::string &title = "",
+        int width = 600,
+        int height = 600
+    );
 
     /// @brief Destructor
     ~Application();

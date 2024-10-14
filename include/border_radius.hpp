@@ -88,7 +88,7 @@ public:
     /// @brief Creates a horizontally symmetric border radius
     /// @param left radius on both left corners
     /// @param right radius on both right corners
-    /// @return 
+    /// @return horizontally symmetric border radius
     static BorderRadius horizontal(
         Radius left = Radius::zero(),
         Radius right = Radius::zero()
@@ -97,7 +97,7 @@ public:
     /// @brief Creates a vertically symmetric border radius
     /// @param top radius on both top corners
     /// @param bottom radius on both bottom corners
-    /// @return 
+    /// @return vertically symmetric border radius
     static BorderRadius vertical(
         Radius top = Radius::zero(),
         Radius bottom = Radius::zero()

@@ -7,45 +7,41 @@
 #include "freetype/ft2build.h"
 #include FT_FREETYPE_H
 
-// Redefine FreeType error string function
-const char *FT_Error_String(FT_Error error)
-{
-    #undef FTERRORS_H_
-    #define FT_ERROR_START_LIST     switch(error) {
-    #define FT_ERRORDEF(e, v, s)    case e:\
-                                        return s;
-    #define FT_ERROR_END_LIST       default:\
-                                        return "Unknown error"; \
-                                    }
-    #include "freetype/fterrors.h"
-}
-
+/// @brief Font character list start char
 #define CHARS_START 32
+
+/// @brief Font character list length
 #define CHARS_LEN 95
 
+/// @brief Namespace for font module
+namespace FontModule {
+
 /// @brief Attempts to initialize resources related to fonts
+/// @param rootPath path to project root
 /// @return whether was successful or not
-bool initFonts();
+bool init(const std::string &rootPath);
 
 /// @brief Terminates/frees resources related to fonts
-void terminateFonts();
+void terminate();
+
+} // FontModule
 
 /// @brief Wrapper struct for FreeType glyph struct
 struct Character {
-    // OpenGL texture ID
+    /// @brief OpenGL texture ID
     unsigned int textureID;
 
-    // Size of glyph in pixels
+    /// @brief Size of glyph in pixels
     glm::vec2 size;
 
-    // Offset from baseline to top-left of glyph
+    /// @brief Offset from baseline to top-left of glyph
     glm::vec2 bearing;
 
-    // Horizontal offset to advance to next glyph
+    /// @brief Horizontal offset to advance to next glyph
     float advance;
 };
 
-/// @brief Class to hold 
+/// @brief Class to hold data about a TTF font
 class Font {
 public:
     /// @brief Default constructor
