@@ -90,6 +90,19 @@ void App::start() {
             setWidth(width() + 1);
         }
 
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+            text.setAlignment(TextAlignment::left);
+        }
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            text.setAlignment(TextAlignment::right);
+        }
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+            text.setAlignment(TextAlignment::center);
+        }
+        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+            text.setAlignment(TextAlignment::justified);
+        }
+
         // Update title
         std::stringstream sstr;
         sstr << "Rounded Quads | " << (int)(1 / dt) << " fps";
@@ -124,7 +137,7 @@ void App::start() {
 
         float r = std::sin(now) * 0.5f + 0.5f;
         float g = std::cos(now * 4.0f) * 0.5f + 0.5f;
-        text.setColor(glm::vec4{r, g, (r + g) * 0.5f, 1.0f});
+        // text.setColor(glm::vec4{r, g, (r + g) * 0.5f, 1.0f});
         text.setRenderWidth((float)width());
         text.draw(windowSize);
 

@@ -1,3 +1,5 @@
+#include <vector>
+
 #include <glm/glm.hpp>
 
 #include "glad/glad.h"
@@ -125,51 +127,82 @@ void Text::draw(const glm::vec2 &windowSize) {
     // Calculate font scale based on given font size and font loaded height
     float scale = _fontSize / _font.fontHeight();
 
+    // Calculate lines data to adjust to current alignment
+    auto linesData = getLinesData();
+    const float numLines = linesData.size();
+    for (auto line : linesData) {
+        printf("line %ld-%ld, words: %ld, spacing: %.5f\n", line.startIdx, line.endIdx, line.numWords, line.spacing);
+        printf("line: \"%s\"\n\n", _text.substr(line.startIdx, line.endIdx - line.startIdx).c_str());
+    }
+
     // Keep track of current render position
     const float fontOffsetY = _font.maxCharHeight() - _font.maxCharUnderflow();
     float x = _topLeft.x;
     float y = _topLeft.y;
+    size_t currentLine = 0;
+    float wordSpacing = 0.0f;
 
-    bool startOfWord = true;
+    // Check for alignment
+    switch (_alignment) {
+    case TextAlignment::left:
+        // Left is the default, don't change anything
+        break;
+    case TextAlignment::right:
+        // Put line spacing at the start
+        x += linesData[currentLine].spacing;
+        break;
+    case TextAlignment::center:
+        // Put half the line spacing at the start
+        x += linesData[currentLine].spacing * 0.5f;
+        break;
+    case TextAlignment::justified:
+        // No spacing is put at the start, only between words/chars
+        wordSpacing = linesData[currentLine].spacing / (float)(linesData[currentLine].numWords - 1);
+        break;
+    }
+
     const size_t textSize = _text.size();
     for (size_t i = 0; i < textSize; ++i) {
         char c = _text[i];
         auto charData = _font.getCharInfo(c);
 
         // Skip space char
-        if (c == ' ') {
+        if (c == ' ' && linesData[currentLine].endIdx != i) {
             x += charData.advance * scale;
-            startOfWord = true;
+            if (currentLine != numLines - 1) {
+                x += wordSpacing;
+            }
             continue;
         }
 
-        // Check if next word overflows width
-        if (startOfWord && i != 0) {
-            // Find next space
-            size_t idx = _text.find(' ', i);
-
-            // If not found, use end of string
-            if (idx == -1UL) {
-                idx = textSize;
-            }
-            auto word = _text.substr(i, idx - i);
-
-            // Found next space, check if word is too large
-            float textWidth = _font.calculateTextWidth(word, _fontSize);
-            if (-_topLeft.x + x + textWidth > _renderWidth) {
-                // Skip line and reset x
-                x = _topLeft.x;
-                y += _fontSize * _lineHeight;
-            }
-        } else if (i != 0 && -_topLeft.x + x + charData.advance * scale > _renderWidth) {
-            // If not start of word, only skip line if current character overflows width
-            x = _topLeft.x;
+        // Check if need to go to next line
+        if (linesData[currentLine].endIdx == i) {
+            // Reset position and go to next line
             y += _fontSize * _lineHeight;
+            x = _topLeft.x;
+            ++currentLine;
+            wordSpacing = 0.0f;
+
+            // Check for alignment on next line
+            switch (_alignment) {
+            case TextAlignment::left:
+                // Left is the default, don't change anything
+                break;
+            case TextAlignment::right:
+                // Put line spacing at the start
+                x += linesData[currentLine].spacing;
+                break;
+            case TextAlignment::center:
+                // Put half the line spacing at the start
+                x += linesData[currentLine].spacing * 0.5f;
+                break;
+            case TextAlignment::justified:
+                // No spacing is put at the start, only between words/chars
+                wordSpacing = linesData[currentLine].spacing / (float)(linesData[currentLine].numWords - 1);
+                break;
+            }
         }
-
-        // Reset word flag
-        startOfWord = false;
-
+        
         // Bind texture
         glBindTexture(GL_TEXTURE_2D, charData.textureID);
 
@@ -191,6 +224,92 @@ void Text::draw(const glm::vec2 &windowSize) {
 
     // Unbind text VAO
     glBindVertexArray(0); glCheckError();
+}
+
+std::vector<Text::Line> Text::getLinesData() {
+    std::vector<Line> linesData;
+
+    float scale = _fontSize / _font.fontHeight();
+    bool startOfWord = true;
+    size_t lastStart = 0;
+    size_t numWords = 0;
+
+    // Keep track of current position
+    float x = _topLeft.x;
+    float y = _topLeft.y;
+
+    // Traverse text
+    const size_t textSize = _text.size();
+    for (size_t i = 0; i < textSize; ++i) {
+        char c = _text[i];
+        auto charData = _font.getCharInfo(c);
+
+        // Skip space char
+        if (c == ' ') {
+            x += charData.advance * scale;
+            startOfWord = true;
+            ++numWords;
+            continue;
+        }
+
+        // Check if next word overflows width
+        if (startOfWord && i != 0) {
+            // Find next space
+            size_t idx = _text.find(' ', i);
+
+            // If not found, use end of string
+            if (idx == -1UL) {
+                idx = textSize;
+            }
+            auto word = _text.substr(i, idx - i);
+
+            // Found next space, check if word is too large
+            float textWidth = _font.calculateTextWidth(word, _fontSize);
+            if (-_topLeft.x + x + textWidth > _renderWidth) {
+                // Check if last element was a space
+                if (_text[i - 1] == ' ') {
+                    x -= _font.getCharInfo(' ').advance * scale;
+                }
+
+                // Add new line data entry to vector
+                linesData.emplace_back(lastStart, i, _renderWidth - x + _topLeft.x, numWords);
+
+                // Reset position data
+                numWords = 0;
+                lastStart = i;
+                x = _topLeft.x;
+                y += _fontSize * _lineHeight;
+            }
+        } else if (i != 0 && -_topLeft.x + x + charData.advance * scale > _renderWidth) {
+            // If not start of word, only skip line if current character overflows width
+
+            // Check if last element was a space
+            if (_text[i - 1] == ' ') {
+                x -= _font.getCharInfo(' ').advance * scale;
+            }
+
+            // Add new line data entry to vector
+            linesData.emplace_back(lastStart, i, _renderWidth - x + _topLeft.x, numWords);
+
+            // Reset position data
+            numWords = 0;
+            lastStart = i;
+            x = _topLeft.x;
+            y += _fontSize * _lineHeight;
+        }
+
+        // Advance horizontally
+        x += charData.advance * scale;
+    }
+
+    // Check if last element was a space
+    if (_text[textSize - 1] == ' ') {
+        x -= _font.getCharInfo(' ').advance * scale;
+    }
+    // Add last line
+    linesData.emplace_back(lastStart, textSize, _renderWidth - x + _topLeft.x, numWords);
+
+    return linesData;
 }
 
 void Text::setText(const std::string &text) {

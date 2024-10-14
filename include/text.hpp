@@ -119,6 +119,31 @@ public:
     TextAlignment alignment() const;
 
 private:
+    /// @brief Struct containing data about a text line
+    struct Line {
+        Line(
+            size_t startIdx,
+            size_t endIdx,
+            float spacing,
+            size_t numWords
+        ) : startIdx{startIdx}, endIdx{endIdx}, spacing{spacing}, numWords{numWords} {}
+
+        /// @brief Index on the text at which the line starts
+        size_t startIdx;
+
+        /// @brief Index on the text at which the line ends
+        size_t endIdx;
+
+        /// @brief How much space was left in the line
+        float spacing;
+
+        /// @brief Number of words in the line
+        size_t numWords;
+    };
+
+    /// @brief Calculate lines data for current text
+    std::vector<Line> getLinesData();
+
     /// @brief The text to be rendered
     std::string _text;
 
