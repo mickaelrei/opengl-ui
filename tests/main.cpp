@@ -135,6 +135,19 @@ void App::start() {
             setWidth(width() + 1);
         }
 
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+            textBox.setAlignment(TextAlignment::left);
+        }
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            textBox.setAlignment(TextAlignment::right);
+        }
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+            textBox.setAlignment(TextAlignment::center);
+        }
+        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+            textBox.setAlignment(TextAlignment::justified);
+        }
+
         // Update title
         std::stringstream sstr;
         sstr << "Rounded Quads | " << (int)(1 / dt) << " fps";
