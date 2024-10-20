@@ -29,6 +29,7 @@ public:
 
     std::vector<std::shared_ptr<Quad>> quads;
 
+    Text textBox;
     std::string text;
 };
 
@@ -56,6 +57,16 @@ void App::keyCallback(int key, int scancode, int action, int mods) {
     bool ctrlPressed = false;
     if (mods & GLFW_MOD_CONTROL) {
         ctrlPressed = true;
+
+        if (key == GLFW_KEY_L) {
+            textBox.setAlignment(TextAlignment::left);
+        } else if (key == GLFW_KEY_R) {
+            textBox.setAlignment(TextAlignment::right);
+        } else if (key == GLFW_KEY_C) {
+            textBox.setAlignment(TextAlignment::center);
+        } else if (key == GLFW_KEY_J) {
+            textBox.setAlignment(TextAlignment::justified);
+        }
     }
 
     if (ctrlPressed && action == GLFW_PRESS && key == GLFW_KEY_V) {
@@ -109,7 +120,7 @@ void App::start() {
     quads.push_back(quad);
 
     Font font{"resources/fonts/minecraft.ttf"};
-    Text textBox{
+    textBox = Text{
         "Most words are short & don't need to break. But Antidisestablishmentarianism is long. The width is set to min-content, with a max-width of 11em. ",
         font
     };
@@ -133,19 +144,6 @@ void App::start() {
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             setWidth(width() + 1);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-            textBox.setAlignment(TextAlignment::left);
-        }
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-            textBox.setAlignment(TextAlignment::right);
-        }
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-            textBox.setAlignment(TextAlignment::center);
-        }
-        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-            textBox.setAlignment(TextAlignment::justified);
         }
 
         // Update title

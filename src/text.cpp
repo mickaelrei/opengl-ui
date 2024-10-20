@@ -111,6 +111,8 @@ void onWindowResize(const glm::vec2 &windowSize) {
 Text::Text(const std::string &text, const Font &font) : _text{text}, _font{font} {}
 
 void Text::draw(const glm::vec2 &windowSize) {
+    if (_text == "") return;
+
     // Get projection
     auto projection = glm::ortho(0.0f, windowSize.x, windowSize.y, 0.0f, 0.0f, 1.0f);
     glm::mat4 model{1.0f};
@@ -130,10 +132,6 @@ void Text::draw(const glm::vec2 &windowSize) {
     // Calculate lines data to adjust to current alignment
     auto linesData = getLinesData();
     const float numLines = linesData.size();
-    for (auto line : linesData) {
-        printf("line %ld-%ld, words: %ld, spacing: %.5f\n", line.startIdx, line.endIdx, line.numWords, line.spacing);
-        printf("line: \"%s\"\n\n", _text.substr(line.startIdx, line.endIdx - line.startIdx).c_str());
-    }
 
     // Keep track of current render position
     const float fontOffsetY = _font.maxCharHeight() - _font.maxCharUnderflow();
@@ -303,7 +301,7 @@ std::vector<Text::Line> Text::getLinesData() {
     }
 
     // Check if last element was a space
-    if (_text[textSize - 1] == ' ') {
+    if (textSize > 0 && _text[textSize - 1] == ' ') {
         x -= _font.getCharInfo(' ').advance * scale;
     }
     // Add last line
