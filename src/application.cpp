@@ -9,10 +9,22 @@
 #include "debug.hpp"
 
 // Window resize
-static void frameBufferSizeCallback(GLFWwindow *window, int width, int height) {
+static void defaultframebufferSizeCallback(GLFWwindow *window, int width, int height) {
     Application *app = static_cast<Application*>(glfwGetWindowUserPointer(window));
     app->framebufferSizeCallback(width, height);
 }
+
+// Key press
+static void defaultKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Application *app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->keyCallback(key, scancode, action, mods);
+}
+
+void defaultCharCallback(GLFWwindow* window, unsigned int codepoint) {
+    Application *app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->charCallback(codepoint);
+}
+
 
 static void glfwErrorCallback(int errorCode, const char* description) {
     std::cerr << "GLFW Error;\n";
@@ -46,7 +58,9 @@ Application::Application(
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
+    glfwSetFramebufferSizeCallback(window, defaultframebufferSizeCallback);
+    glfwSetKeyCallback(window, defaultKeyCallback);
+    glfwSetCharCallback(window, defaultCharCallback);
     glfwSetWindowUserPointer(window, this);
 
     // Load GLAD
@@ -125,4 +139,15 @@ void Application::framebufferSizeCallback(int width, int height) {
     glm::vec2 windowSize{(float)width, (float)height};
     TextModule::onWindowResize(windowSize);
     QuadModule::onWindowResize(windowSize);
+}
+
+void Application::keyCallback(int key, int scancode, int action, int mods) {
+    (void)key;
+    (void)scancode;
+    (void)action;
+    (void)mods;
+}
+
+void Application::charCallback(unsigned int codepoint) {
+    (void)codepoint;
 }

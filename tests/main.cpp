@@ -24,8 +24,12 @@ public:
 
     void start() override;
     void framebufferSizeCallback(int width, int height) override;
+    void charCallback(unsigned int codepoint) override;
+    void keyCallback(int key, int scancode, int action, int mods) override;
 
     std::vector<std::shared_ptr<Quad>> quads;
+
+    std::string text;
 };
 
 App::App() : Application::Application{PROJECT_ROOT_FOLDER, "Rounded Quads", 600, 600} {}
@@ -39,6 +43,47 @@ void App::framebufferSizeCallback(int width, int height) {
         quad->onWindowResize(windowSize);
     }
 }
+
+void App::charCallback(unsigned int codepoint) {
+    if (codepoint < CHARS_START || codepoint > CHARS_START + CHARS_LEN) return;
+
+    text += (char)codepoint;
+}
+
+void App::keyCallback(int key, int scancode, int action, int mods) {
+    (void)scancode;
+
+    bool ctrlPressed = false;
+    if (mods & GLFW_MOD_CONTROL) {
+        ctrlPressed = true;
+    }
+
+    if (ctrlPressed && action == GLFW_PRESS && key == GLFW_KEY_V) {
+        auto str = glfwGetClipboardString(window);
+        printf("clipboard str: \"%s\"\n", str);
+
+        text += str;
+        return;
+    }
+
+    // If key is backspace and action is not release, remove last char
+    if (action != GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
+        size_t size;
+        // If CTRL was pressed delete whole word or until last space
+        if (ctrlPressed) {
+            auto idx = text.rfind(' ');
+            if (idx == -1UL) {
+                size = 0;
+            } else {
+                size = idx;
+            }
+        } else {
+            size = text.size() - 1;
+        }
+        text = text.substr(0, size);
+    }
+}
+
 
 void App::start() {
     // Set polygon mode
@@ -63,12 +108,12 @@ void App::start() {
     );
     quads.push_back(quad);
 
-    Font font{"resources/fonts/roboto.ttf"};
-    Text text{
+    Font font{"resources/fonts/minecraft.ttf"};
+    Text textBox{
         "Most words are short & don't need to break. But Antidisestablishmentarianism is long. The width is set to min-content, with a max-width of 11em. ",
         font
     };
-    text.setRenderWidth(300.0f);
+    textBox.setRenderWidth(300.0f);
 
     // Render loop
     // -----------
@@ -124,9 +169,10 @@ void App::start() {
 
         float r = std::sin(now) * 0.5f + 0.5f;
         float g = std::cos(now * 4.0f) * 0.5f + 0.5f;
-        text.setColor(glm::vec4{r, g, (r + g) * 0.5f, 1.0f});
-        text.setRenderWidth((float)width());
-        text.draw(windowSize);
+        textBox.setColor(glm::vec4{r, g, (r + g) * 0.5f, 1.0f});
+        textBox.setRenderWidth((float)width());
+        textBox.setText(text);
+        textBox.draw(windowSize);
 
         // Swap buffers and poll events
         // ----------------------------

@@ -53,6 +53,17 @@ public:
     /// @param height new heigth
     virtual void framebufferSizeCallback(int width, int height);
 
+    /// @brief Callback for key tap
+    /// @param key keyboard key
+    /// @param scancode platform-specific scancode
+    /// @param action key action
+    /// @param mods modifier bits
+    virtual void keyCallback(int key, int scancode, int action, int mods);
+
+    /// @brief Callback for char input
+    /// @param codepoint Character UTF-32 codepoint
+    virtual void charCallback(unsigned int codepoint);
+
 protected:
     /// @brief Callback for input processing
     /// @param window
